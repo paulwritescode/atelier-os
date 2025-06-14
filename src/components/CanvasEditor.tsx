@@ -25,13 +25,19 @@ interface CanvasEditorProps {
   onSave: (canvas: any) => void;
 }
 
+interface TextSection {
+  id: string;
+  heading: string;
+  content: string;
+}
+
 export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSave }) => {
   const [title, setTitle] = useState(canvas?.title || '');
   const [content, setContent] = useState(canvas?.content || '');
   const [activeTab, setActiveTab] = useState<'canvas' | 'client'>('canvas');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [images, setImages] = useState<string[]>([]);
-  const [textSections, setTextSections] = useState<string[]>([]);
+  const [textSections, setTextSections] = useState<TextSection[]>([]);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
 
   const ownerName = "John Smith"; // This would come from user context
@@ -70,12 +76,18 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
   };
 
   const addTextSection = () => {
-    setTextSections([...textSections, '']);
+    const newSection: TextSection = {
+      id: Date.now().toString(),
+      heading: `Section ${textSections.length + 1}`,
+      content: ''
+    };
+    setTextSections([...textSections, newSection]);
   };
 
-  const updateTextSection = (index: number, value: string) => {
-    const updated = [...textSections];
-    updated[index] = value;
+  const updateTextSection = (id: string, field: 'heading' | 'content', value: string) => {
+    const updated = textSections.map(section => 
+      section.id === id ? { ...section, [field]: value } : section
+    );
     setTextSections(updated);
   };
 
@@ -208,18 +220,31 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                   </div>
 
                   {/* Dynamic Text Sections */}
-                  {textSections.map((section, index) => (
-                    <div key={index}>
-                      <label className="block text-sm font-medium text-slate-700 mb-2">
-                        Text Section {index + 1}
-                      </label>
-                      <Textarea
-                        value={section}
-                        onChange={(e) => updateTextSection(index, e.target.value)}
-                        placeholder="Add additional text content..."
-                        rows={4}
-                        className="w-full resize-none"
-                      />
+                  {textSections.map((section) => (
+                    <div key={section.id} className="border border-slate-200 rounded-lg p-4 space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Section Heading
+                        </label>
+                        <Input
+                          value={section.heading}
+                          onChange={(e) => updateTextSection(section.id, 'heading', e.target.value)}
+                          placeholder="Enter section heading..."
+                          className="font-medium"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Content
+                        </label>
+                        <Textarea
+                          value={section.content}
+                          onChange={(e) => updateTextSection(section.id, 'content', e.target.value)}
+                          placeholder="Add text content..."
+                          rows={4}
+                          className="w-full resize-none"
+                        />
+                      </div>
                     </div>
                   ))}
 
