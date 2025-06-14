@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, User, Palette, Bell, Settings } from 'lucide-react';
+import { Home, User, Palette, Bell, Settings, Eye } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -27,6 +27,11 @@ const menuItems = [
     title: "Canvases",
     url: "/",
     icon: Palette,
+  },
+  {
+    title: "Simulate Customer",
+    url: "/customer-view",
+    icon: Eye,
   },
   {
     title: "Notifications",

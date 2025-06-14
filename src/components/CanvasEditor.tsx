@@ -31,6 +31,13 @@ interface TextSection {
   content: string;
 }
 
+interface SavedSection {
+  id: string;
+  heading: string;
+  content: string;
+  savedAt: string;
+}
+
 export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSave }) => {
   const [title, setTitle] = useState(canvas?.title || '');
   const [content, setContent] = useState(canvas?.content || '');
@@ -38,6 +45,7 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const [textSections, setTextSections] = useState<TextSection[]>([]);
+  const [savedSections, setSavedSections] = useState<SavedSection[]>([]);
   const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
 
   const ownerName = "John Smith"; // This would come from user context
@@ -89,6 +97,20 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
       section.id === id ? { ...section, [field]: value } : section
     );
     setTextSections(updated);
+  };
+
+  const saveTextSection = (sectionId: string) => {
+    const section = textSections.find(s => s.id === sectionId);
+    if (section && section.heading && section.content) {
+      const savedSection: SavedSection = {
+        ...section,
+        savedAt: new Date().toLocaleString()
+      };
+      setSavedSections([...savedSections, savedSection]);
+      
+      // Remove from draft sections
+      setTextSections(textSections.filter(s => s.id !== sectionId));
+    }
   };
 
   const handlePDFExport = () => {
@@ -219,6 +241,26 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                     />
                   </div>
 
+                  {/* Saved Sections */}
+                  {savedSections.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium text-slate-700 mb-4">
+                        Saved Canvas Sections
+                      </label>
+                      <div className="space-y-4">
+                        {savedSections.map((section) => (
+                          <div key={section.id} className="border border-green-200 bg-green-50 rounded-lg p-4">
+                            <div className="flex justify-between items-start mb-2">
+                              <h4 className="font-medium text-green-800">{section.heading}</h4>
+                              <span className="text-xs text-green-600">Saved: {section.savedAt}</span>
+                            </div>
+                            <p className="text-green-700 text-sm">{section.content}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Dynamic Text Sections */}
                   {textSections.map((section) => (
                     <div key={section.id} className="border border-slate-200 rounded-lg p-4 space-y-3">
@@ -244,6 +286,17 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                           rows={4}
                           className="w-full resize-none"
                         />
+                      </div>
+                      <div className="flex justify-end">
+                        <Button 
+                          size="sm" 
+                          onClick={() => saveTextSection(section.id)}
+                          disabled={!section.heading || !section.content}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Save to Canvas
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -334,6 +387,12 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                     <span className="text-slate-500">Comments</span>
                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
                       {comments.length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">Saved Sections</span>
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                      {savedSections.length}
                     </span>
                   </div>
                 </div>
