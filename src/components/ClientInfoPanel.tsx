@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Mail, Phone, Ruler, Calendar } from 'lucide-react';
+import { User, Mail, Phone, Ruler, Calendar, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -34,13 +34,38 @@ export const ClientInfoPanel: React.FC<ClientInfoPanelProps> = ({ canvas }) => {
     preferences: '',
     budget: '',
     deadline: '',
-    specialRequirements: ''
+    specialRequirements: '',
+    pricing: {
+      basePrice: '',
+      materialCost: '',
+      laborCost: '',
+      additionalCharges: '',
+      totalCost: ''
+    }
   });
 
   const handleMeasurementChange = (field: string, value: string) => {
     setClientData({
       ...clientData,
       measurements: { ...clientData.measurements, [field]: value }
+    });
+  };
+
+  const handlePricingChange = (field: string, value: string) => {
+    const updatedPricing = { ...clientData.pricing, [field]: value };
+    
+    // Auto-calculate total cost
+    if (field !== 'totalCost') {
+      const base = parseFloat(updatedPricing.basePrice) || 0;
+      const material = parseFloat(updatedPricing.materialCost) || 0;
+      const labor = parseFloat(updatedPricing.laborCost) || 0;
+      const additional = parseFloat(updatedPricing.additionalCharges) || 0;
+      updatedPricing.totalCost = (base + material + labor + additional).toString();
+    }
+    
+    setClientData({
+      ...clientData,
+      pricing: updatedPricing
     });
   };
 
@@ -135,6 +160,61 @@ export const ClientInfoPanel: React.FC<ClientInfoPanelProps> = ({ canvas }) => {
               value={clientData.measurements.weight}
               onChange={(e) => handleMeasurementChange('weight', e.target.value)}
               placeholder="150"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Pricing Section */}
+      <div>
+        <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+          <DollarSign className="w-5 h-5 mr-2" />
+          Project Pricing
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Base Price ($)</label>
+            <Input
+              type="number"
+              value={clientData.pricing.basePrice}
+              onChange={(e) => handlePricingChange('basePrice', e.target.value)}
+              placeholder="500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Material Cost ($)</label>
+            <Input
+              type="number"
+              value={clientData.pricing.materialCost}
+              onChange={(e) => handlePricingChange('materialCost', e.target.value)}
+              placeholder="150"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Labor Cost ($)</label>
+            <Input
+              type="number"
+              value={clientData.pricing.laborCost}
+              onChange={(e) => handlePricingChange('laborCost', e.target.value)}
+              placeholder="200"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Additional Charges ($)</label>
+            <Input
+              type="number"
+              value={clientData.pricing.additionalCharges}
+              onChange={(e) => handlePricingChange('additionalCharges', e.target.value)}
+              placeholder="50"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-slate-700 mb-2">Total Cost ($)</label>
+            <Input
+              value={clientData.pricing.totalCost}
+              readOnly
+              className="bg-slate-50 font-semibold text-lg"
+              placeholder="Total will be calculated automatically"
             />
           </div>
         </div>

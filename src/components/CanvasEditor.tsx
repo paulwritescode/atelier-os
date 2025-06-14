@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Save, Share, Upload, Type, Image, User, Calendar, Palette } from 'lucide-react';
+import { ArrowLeft, Save, Share, Upload, Type, Image, User, Calendar, Palette, Download, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ClientInfoPanel } from '@/components/ClientInfoPanel';
 import { ShareModal } from '@/components/ShareModal';
+import { exportToPDF } from '@/utils/pdfExport';
 
 interface Canvas {
   id: string;
@@ -30,6 +31,10 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
   const [activeTab, setActiveTab] = useState<'canvas' | 'client'>('canvas');
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [images, setImages] = useState<string[]>([]);
+  const [textSections, setTextSections] = useState<string[]>([]);
+  const [comments, setComments] = useState<Array<{id: string, text: string, author: string, timestamp: string}>>([]);
+
+  const ownerName = "John Smith"; // This would come from user context
 
   const handleSave = () => {
     onSave({
@@ -42,13 +47,57 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files) {
-      // In a real app, you'd upload to a service like S3
-      // For demo, we'll use placeholder images
       const newImages = Array.from(files).map(() => 
         'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=200&fit=crop'
       );
       setImages([...images, ...newImages]);
     }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const newImages = Array.from(files).map(() => 
+        'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=300&h=200&fit=crop'
+      );
+      setImages([...images, ...newImages]);
+    }
+  };
+
+  const addTextSection = () => {
+    setTextSections([...textSections, '']);
+  };
+
+  const updateTextSection = (index: number, value: string) => {
+    const updated = [...textSections];
+    updated[index] = value;
+    setTextSections(updated);
+  };
+
+  const handlePDFExport = () => {
+    if (canvas) {
+      exportToPDF({ ...canvas, title, content }, ownerName);
+    }
+  };
+
+  const scheduleClientMeeting = () => {
+    // Implementation for scheduling meetings
+    alert('Meeting scheduling feature would be integrated with calendar apps');
+  };
+
+  const addComment = (commentText: string) => {
+    const newComment = {
+      id: Date.now().toString(),
+      text: commentText,
+      author: 'Client',
+      timestamp: new Date().toISOString()
+    };
+    setComments([...comments, newComment]);
   };
 
   return (
@@ -72,6 +121,10 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
             </div>
 
             <div className="flex items-center space-x-3">
+              <Button variant="outline" size="sm" onClick={handlePDFExport}>
+                <Download className="w-4 h-4 mr-2" />
+                Export PDF
+              </Button>
               <Button variant="outline" size="sm" onClick={() => setIsShareModalOpen(true)}>
                 <Share className="w-4 h-4 mr-2" />
                 Share
@@ -114,9 +167,9 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                 {/* Toolbar */}
                 <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
                   <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={addTextSection}>
                       <Type className="w-4 h-4 mr-2" />
-                      Text
+                      Add Text
                     </Button>
                     <label className="cursor-pointer">
                       <Button variant="outline" size="sm" asChild>
@@ -154,6 +207,22 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                     />
                   </div>
 
+                  {/* Dynamic Text Sections */}
+                  {textSections.map((section, index) => (
+                    <div key={index}>
+                      <label className="block text-sm font-medium text-slate-700 mb-2">
+                        Text Section {index + 1}
+                      </label>
+                      <Textarea
+                        value={section}
+                        onChange={(e) => updateTextSection(index, e.target.value)}
+                        placeholder="Add additional text content..."
+                        rows={4}
+                        className="w-full resize-none"
+                      />
+                    </div>
+                  ))}
+
                   {/* Image Gallery */}
                   {images.length > 0 && (
                     <div>
@@ -170,15 +239,43 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                     </div>
                   )}
 
-                  {/* Quick Add Sections */}
+                  {/* Drag and Drop Areas */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center hover:border-slate-400 transition-colors cursor-pointer">
+                    <div 
+                      className="p-8 border-2 border-dashed border-slate-300 rounded-lg text-center hover:border-slate-400 transition-colors cursor-pointer"
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                    >
                       <Image className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                       <p className="text-sm text-slate-600">Drop images here or click to upload</p>
                     </div>
-                    <div className="p-4 border border-dashed border-slate-300 rounded-lg text-center hover:border-slate-400 transition-colors cursor-pointer">
+                    <div 
+                      className="p-8 border-2 border-dashed border-slate-300 rounded-lg text-center hover:border-slate-400 transition-colors cursor-pointer"
+                      onClick={addTextSection}
+                    >
                       <Type className="w-8 h-8 text-slate-400 mx-auto mb-2" />
                       <p className="text-sm text-slate-600">Add text section</p>
+                    </div>
+                  </div>
+
+                  {/* Comments Section */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                      Client Comments
+                    </label>
+                    <div className="space-y-3">
+                      {comments.map((comment) => (
+                        <div key={comment.id} className="p-3 bg-blue-50 rounded-lg">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-sm">{comment.author}</span>
+                            <span className="text-xs text-slate-500">{new Date(comment.timestamp).toLocaleDateString()}</span>
+                          </div>
+                          <p className="text-sm">{comment.text}</p>
+                        </div>
+                      ))}
+                      {comments.length === 0 && (
+                        <p className="text-sm text-slate-500 italic">No comments yet from client</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -208,19 +305,33 @@ export const CanvasEditor: React.FC<CanvasEditorProps> = ({ canvas, onBack, onSa
                     <span className="text-slate-500">Last Modified</span>
                     <span className="text-slate-900">{canvas?.lastModified || 'Never'}</span>
                   </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">Comments</span>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                      {comments.length}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <div>
                 <h3 className="font-medium text-slate-900 mb-4">Quick Actions</h3>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={() => setIsShareModalOpen(true)}>
                     <Share className="w-4 h-4 mr-2" />
                     Share with Client
                   </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={scheduleClientMeeting}>
                     <Calendar className="w-4 h-4 mr-2" />
                     Schedule Meeting
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start" onClick={handlePDFExport}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export as PDF
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    View Comments ({comments.length})
                   </Button>
                 </div>
               </div>
