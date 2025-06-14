@@ -126,7 +126,7 @@ export const ClientInfoPanel: React.FC<ClientInfoPanelProps> = ({ canvas }) => {
             <Input
               value={clientData.measurements.height}
               onChange={(e) => handleMeasurementChange('height', e.target.value)}
-              placeholder="5'8\""
+              placeholder="5'8&quot;"
             />
           </div>
           <div>
