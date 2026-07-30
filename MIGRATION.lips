@@ -1,0 +1,416 @@
+# fashion-hub — Vite/React → Next.js Migration Plan
+
+> Target scaffold:
+> `bunx --bun shadcn@latest init --preset b6GfB1vq4 --template next --pointer`
+>
+> Everything in this document about the preset was **verified by actually running
+> the command** into a scratch directory and reading the output — not inferred.
+> Baseline scaffold builds clean on Next 16.2.6 / Turbopack.
+
+---
+
+## 0. TL;DR — the three things that will surprise you
+
+1. **The `.` trick does not work.** `--template next` *always* creates a
+   subdirectory. Three variants were tested and all fail (§2). The migration must
+   scaffold to a temp dir and merge back into `.`.
+2. **This is not a "port React Router to App Router" job.** The preset swaps the
+   entire substrate: Radix → **Base UI**, lucide → **hugeicons**, Tailwind v3 →
+   **v4 (CSS-first, no config file)**, React 18 → **19**, and style `default` →
+   **`base-luma`**. Every one of the 49 files in `src/components/ui/` is replaced,
+   not edited.
+3. **Dark mode arrives switched on.** The preset ships `next-themes` with
+   `defaultTheme="system"`. Today's UI is hardcoded light (`bg-white`,
+   `text-slate-900`). On a dark-mode machine the migrated app renders broken until
+   the colors are tokenized (§5).
+
+---
+
+## 1. Current state (inventory)
+
+| | |
+|---|---|
+| Build | Vite 5 + `@vitejs/plugin-react-swc` |
+| Framework | React 18.3, `react-router-dom` 6.26 |
+| Styling | Tailwind **v3.4** + `tailwind.config.ts` + `src/index.css` (HSL vars) |
+| Primitives | Radix UI (29 `@radix-ui/*` packages) |
+| Icons | `lucide-react` (30 distinct icons in app code) |
+| shadcn style | `default`, baseColor `slate`, `rsc: false` |
+| Lovable | `lovable-tagger` dev plugin, Lovable OG meta in `index.html` |
+
+**Application code** — 4 pages, 6 components, 1 util:
+
+```
+src/pages/Index.tsx          dashboard, grid/list, search+filter, hosts CanvasEditor
+src/pages/Profile.tsx        profile form
+src/pages/CustomerView.tsx   read-only client view + comments
+src/pages/NotFound.tsx       404
+src/components/AppSidebar.tsx      CanvasCard.tsx    CanvasEditor.tsx
+src/components/ClientInfoPanel.tsx CreateCanvasModal.tsx  ShareModal.tsx
+src/utils/pdfExport.ts       window.open + document.write + print()
+```
+
+**`src/components/ui/` holds 49 files but app code imports only 8:**
+`button` (7×), `input` (6×), `textarea` (5×), `sidebar` (2×), `card`,
+`tooltip`, `sonner`, `toaster`.
+
+> **The other 41 UI files are dead code.** Do not migrate them. Re-add from the
+> registry on demand.
+
+**Also dead:** `@tanstack/react-query` — `App.tsx` mounts `QueryClientProvider`
+but there is not a single `useQuery`/`useMutation` in the codebase. Drop it.
+
+---
+
+## 2. ⚠️ The scaffolding problem — verified
+
+The intent was `... --template next --pointer .` so it lands in the current
+folder. **It does not.** All three forms were tested:
+
+| Command | Result |
+|---|---|
+| `init ... --template next --pointer .` in **this repo** | ✖ `We could not detect a supported framework`. The trailing `.` is parsed as a **component path** (signature is `init [options] [components...]`), which flips the CLI into "add to existing project" mode and ignores `--template`. |
+| `init ... --template next --pointer .` in an **empty** dir | Ignores the `.`, prompts *"What is your project named?"*, then creates a **subfolder**. |
+| `init ... --name .` | ✖ `dest already exists.` |
+
+**There is no in-place mode.** `--template next` delegates to the Next scaffolder,
+which refuses an existing destination.
+
+### The approach that works
+
+```bash
+# from repo root, on a migration branch, with a clean tree
+bunx --bun shadcn@latest init \
+  --preset b6GfB1vq4 --template next --pointer \
+  --name .next-scaffold -y
+
+# merge scaffold into repo root, then discard the shell
+rsync -a --exclude .git .next-scaffold/ .
+rm -rf .next-scaffold
+```
+
+`.next-scaffold/` contains its own `git init`; the `--exclude .git` is what stops
+it clobbering this repo's history. **Verify `git status` before and after.**
+
+---
+
+## 3. Target stack (what the preset actually installs)
+
+Verified from the generated `package.json`:
+
+| Package | Version | Note |
+|---|---|---|
+| `next` | 16.2.6 | Turbopack default |
+| `react` / `react-dom` | 19.2.4 | |
+| `tailwindcss` | ^4 | via `@tailwindcss/postcss` |
+| `@base-ui/react` | ^1.6.0 | **replaces all Radix packages** |
+| `@hugeicons/react` + `@hugeicons/core-free-icons` | ^1.1.9 / ^4.2.3 | |
+| `shadcn` | ^4.16.0 | runtime dep — `@import "shadcn/tailwind.css"` |
+| `next-themes` | ^0.4.6 | |
+| `tw-animate-css` | ^1.4.0 | replaces `tailwindcss-animate` |
+| `class-variance-authority`, `clsx`, `tailwind-merge` ^3.6 | | `cn()` unchanged |
+
+Also generated: `prettier` + `prettier-plugin-tailwindcss`, `eslint-config-next`,
+`.prettierrc`, scripts `dev/build/start/lint/format/typecheck`.
+
+**`components.json` the preset writes:**
+
+```json
+{ "style": "base-luma", "rsc": true, "tsx": true,
+  "tailwind": { "config": "", "css": "app/globals.css",
+                "baseColor": "neutral", "cssVariables": true },
+  "iconLibrary": "hugeicons", "rtl": false,
+  "menuColor": "default", "menuAccent": "bold", "registries": {} }
+```
+
+Note `"config": ""` — **Tailwind v4 has no config file.** `tailwind.config.ts`,
+`postcss.config.js`, and the v3 `@tailwind` directives are all deleted.
+
+### AGENTS.md warning (ships with the scaffold)
+
+> *"This is NOT the Next.js you know. This version has breaking changes — APIs,
+> conventions, and file structure may all differ from your training data. Read the
+> relevant guide in `node_modules/next/dist/docs/` before writing any code."*
+
+Docs are bundled at `node_modules/next/dist/docs/{01-app,02-pages,03-architecture}`.
+**Consult them before writing App Router code** rather than relying on recall.
+
+---
+
+## 4. 🎨 Colors & fonts the preset brings — full definition
+
+This is the part worth reading closely: the preset is a **gold/amber theme on
+neutral greys**, and the current app is **indigo→purple on slate**. They do not
+resemble each other.
+
+### Fonts
+
+| Slot | Family | CSS var | Source |
+|---|---|---|---|
+| Sans (body) | **Inter** | `--font-sans` | `next/font/google` |
+| Heading | **Inter** | `--font-heading` → aliased to `--font-sans` | same |
+| Mono | **Geist Mono** | `--font-mono` | `next/font/google` |
+
+Wired in `app/layout.tsx`; `html { @apply font-sans }` in `globals.css`.
+`--font-heading` exists as a distinct token, so headings can be split off later by
+pointing it at another family — no component changes needed.
+
+### Color format: **oklch, not HSL**
+
+Current `src/index.css` uses space-separated HSL triplets consumed as
+`hsl(var(--primary))`. The preset uses **full `oklch()` values** consumed directly
+as `var(--primary)`. Every custom color declaration must be rewritten — a
+find/replace of the numbers is not enough, the wrapper function goes away too.
+
+### The palette (light mode, hex computed from the oklch values)
+
+| Token | oklch | ≈ hex | |
+|---|---|---|---|
+| `--primary` | `0.852 0.199 91.936` | **#fdc700** | gold |
+| `--primary-foreground` | `0.421 0.095 57.708` | **#733e0a** | deep amber |
+| `--accent` | `0.852 0.199 91.936` | **#fdc700** | same as primary |
+| `--secondary` | `0.967 0.001 286.375` | **#f4f4f5** | near-white grey |
+| `--destructive` | `0.577 0.245 27.325` | **#e7000b** | red |
+| `--background` | `1 0 0` | **#ffffff** | |
+| `--foreground` | `0.145 0 0` | near-black | |
+| `--sidebar-primary` | `0.681 0.162 75.834` | **#d08700** | darker gold |
+
+Dark mode shifts primary to `oklch(0.795 0.184 86.047)` ≈ **#f0b100**, cards to
+`oklch(0.205 0 0)`, and borders to `oklch(1 0 0 / 10%)`.
+
+**Charts** are a five-stop gold ramp (light→dark), not categorical hues:
+`#ffdf20 → #f0b100 → #d08700 → ~#a65f00 → #894b00`. If a chart is ever added,
+these will not distinguish series well — worth knowing up front.
+
+### Radius & other tokens
+
+`--radius: 0.625rem`, with a **multiplicative** scale that v3 did not have:
+
+```
+sm = r*0.6   md = r*0.8   lg = r   xl = r*1.4   2xl = r*1.8   3xl = r*2.2   4xl = r*2.6
+```
+
+The `base-luma` Button uses `rounded-4xl` — i.e. **pill-shaped buttons by
+default**, a notable visual departure from the current square-ish buttons.
+
+### `--pointer` flag
+
+Adds to `globals.css`:
+
+```css
+button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+```
+
+### Decision taken: **adopt the preset palette fully**
+
+All 140 hardcoded color classes get replaced with semantic tokens:
+
+| Today | Becomes |
+|---|---|
+| `bg-gradient-to-r from-indigo-500 to-purple-600` | `bg-primary text-primary-foreground` |
+| `text-slate-500` / `text-slate-600` | `text-muted-foreground` |
+| `text-slate-900` | `text-foreground` |
+| `bg-white/70` / `bg-white/80` | `bg-card/70` |
+| `border-slate-200` / `border-slate-300` | `border-border` |
+| `bg-gradient-to-br from-slate-50 via-white to-blue-50` | `bg-background` |
+| `bg-green-50 border-green-200 text-green-800` (saved sections) | keep semantic green, or add `--success` token |
+| `bg-blue-50 text-blue-700` (comments) | `bg-muted text-muted-foreground` |
+| `bg-yellow-100 text-yellow-700` (status pill) | `bg-primary/15 text-primary` |
+
+Payoff: dark mode works for free, and the app picks up the gold identity.
+
+---
+
+## 5. Tailwind v3 → v4 breakages present in *this* code
+
+Counted against `src/pages` + `src/components/*.tsx`:
+
+| Pattern | Count | Action |
+|---|---|---|
+| `bg-gradient-to-*` | 14 | → `bg-linear-to-*` (renamed in v4). Most are being deleted anyway per §4. |
+| `space-x-*` / `space-y-*` | 45 | v4 changed the selector to `:where(& > :not(:last-child))`. **Visually inspect each** — flex rows with `space-x` are the risky ones. Prefer converting to `gap-*`. |
+| bare `border` / `border-t` / `border-b` with no color | 10 | **v4's default border color is `currentColor`, not `gray-200`.** These will render as dark/near-black lines. Must add `border-border` explicitly. |
+| `focus:ring-*` | 3 | v4 default ring width changed 3px→1px; `ring` → `ring-3` where the old look is wanted. |
+| `shadow-sm` | 2 | v4 renamed the scale: old `shadow-sm` → `shadow-xs`, old `shadow` → `shadow-sm`. |
+| `outline-none` | in ui/ | → `outline-hidden`. |
+
+The bare-`border` one is the sneaky one — it is silent, not a build error.
+
+---
+
+## 6. Icons — much cheaper than expected
+
+Discovery: `@hugeicons/core-free-icons` exports **13,556** symbols, and it ships
+**lucide-compatible alias names**. All 30 icons this app uses resolve as exact
+name matches:
+
+```
+Plus Search Filter Grid List Calendar User Palette Bell ArrowLeft Save Share
+Upload Type Image Download MessageSquare Home Settings Eye Clock MoreHorizontal
+X Copy Mail Link Ruler DollarSign Phone Building          → 30/30 exact
+```
+
+So this is a mechanical rewrite, **not** a hand-mapping exercise. The identifiers
+stay identical; only the import source and the JSX form change. Note the exports
+are **icon data arrays**, not components — hence the `HugeiconsIcon` wrapper:
+
+```tsx
+// before
+import { Plus, Palette } from 'lucide-react'
+<Plus className="w-4 h-4 mr-2" />
+
+// after
+import { HugeiconsIcon } from '@hugeicons/react'
+import { Plus, Palette } from '@hugeicons/core-free-icons'
+<HugeiconsIcon icon={Plus} className="w-4 h-4 mr-2" />
+```
+
+`HugeiconsIcon` props: `icon` (required), `size`, `strokeWidth`,
+`absoluteStrokeWidth`, `altIcon`/`showAlt`, `primaryColor`/`secondaryColor`, plus
+all SVG attributes — so `className` keeps working.
+
+⚠️ Same name ≠ same artwork. Hugeicons' `Save`, for instance, is a different glyph
+from lucide's floppy disk. **Do a visual pass after the swap.** If a specific
+result is wanted, the `*Icon`-suffixed exports (e.g. `FloppyDiskIcon`,
+`PlusSignIcon`) are the native hugeicons names.
+
+---
+
+## 7. Routing map
+
+| Now (react-router) | Next App Router |
+|---|---|
+| `<Route path="/" element={<Index/>}>` | `app/page.tsx` |
+| `/profile` | `app/profile/page.tsx` |
+| `/customer-view` | `app/customer-view/page.tsx` |
+| `<Route path="*" element={<NotFound/>}>` | `app/not-found.tsx` |
+| `BrowserRouter` + `Routes` in `App.tsx` | deleted — `app/layout.tsx` takes over |
+| `useLocation()` in NotFound | drop; `not-found.tsx` gets no pathname. Use `usePathname()` in a client child if the log is still wanted |
+| `<a href={item.url}>` in AppSidebar | `next/link` `<Link href>` |
+| `window.history.back()` in Profile | `useRouter().back()` from `next/navigation` |
+
+**`"use client"` is required** on every one of these — all four pages and all six
+components use `useState`/handlers. `rsc: true` in components.json means files are
+server components by default. Plan: mark leaf components client, keep
+`app/layout.tsx` and `page.tsx` shells as server where possible.
+
+`CanvasEditor` is currently rendered from `Index` via `selectedCanvas` state, not a
+route. **Keep it as state for the migration** — promoting it to `/canvas/[id]`
+is a behavior change and belongs in a follow-up.
+
+---
+
+## 8. Toasts
+
+`src/components/ui/{toaster,use-toast}.tsx` + `src/hooks/use-toast.ts` are the
+**deprecated** Radix toast. Confirmed against the registry:
+
+- `base-luma/toaster` → **404**
+- `base-luma/use-toast` → **404**
+- `base-luma/sonner` → 200 ✅
+
+So `<Toaster />` in `App.tsx` is dropped and **sonner is the only toast path**.
+(Neither is actually invoked anywhere in app code today — no `toast()` calls
+exist — so this is pure deletion.)
+
+---
+
+## 9. Phased execution
+
+### Phase 0 — Safety
+- [ ] `git checkout -b migrate/nextjs`
+- [ ] Confirm clean tree. Tag the pre-migration commit.
+- [ ] Screenshot all 4 screens at desktop + mobile widths for later comparison.
+
+### Phase 1 — Scaffold & merge
+- [ ] Run the `--name .next-scaffold` command from §2.
+- [ ] `rsync -a --exclude .git .next-scaffold/ .` then `rm -rf .next-scaffold`.
+- [ ] Delete Vite-era files: `vite.config.ts`, `index.html`, `postcss.config.js`,
+      `tailwind.config.ts`, `tsconfig.app.json`, `tsconfig.node.json`,
+      `eslint.config.js`, `src/main.tsx`, `src/App.tsx`, `src/App.css`,
+      `src/index.css`, `src/vite-env.d.ts`, `package-lock.json`, `bun.lockb`.
+- [ ] Merge `public/` (keep `favicon.ico`, `robots.txt`; drop `placeholder.svg` if unused).
+- [ ] `bun run build` on the bare scaffold — **must pass before touching app code.**
+      (Verified passing: `✓ Compiled successfully in 1875ms`.)
+
+### Phase 2 — UI primitives
+- [ ] `bunx --bun shadcn@latest add button input textarea card sidebar sonner tooltip label`
+      (all confirmed present in `base-luma`).
+- [ ] **Delete all 49 files in `src/components/ui/`** and `src/hooks/use-toast.ts`.
+- [ ] Keep `src/hooks/use-mobile.tsx` only if the registry's `use-mobile` doesn't land it.
+- [ ] Move `src/lib/utils.ts` → scaffold's `lib/utils.ts` (identical `cn`, no change).
+
+### Phase 3 — Move app code
+- [ ] `src/pages/*` → `app/**/page.tsx` per §7, add `"use client"`.
+- [ ] `src/components/*.tsx` → `components/*.tsx`, add `"use client"`.
+- [ ] `src/utils/pdfExport.ts` → `lib/pdfExport.ts`. It touches `window` — must
+      only be called from a client component (it already is, via a click handler).
+- [ ] Rewrite router imports → `next/link`, `next/navigation`.
+- [ ] Strip `QueryClientProvider` + drop `@tanstack/react-query`.
+
+### Phase 4 — Icons (§6)
+- [ ] Rewrite 30 icon call sites to `HugeiconsIcon`.
+- [ ] Remove `lucide-react`.
+- [ ] Visual pass for glyph mismatches.
+
+### Phase 5 — Theme (§4, §5)
+- [ ] Replace 140 hardcoded color classes with semantic tokens.
+- [ ] Fix the 10 bare `border` occurrences → `border-border`.
+- [ ] Convert `space-x-*`/`space-y-*` → `gap-*` inside flex containers.
+- [ ] `bg-gradient-to-*` → `bg-linear-to-*` for any survivors.
+- [ ] **Test both light and dark** — dark is on by default.
+
+### Phase 6 — Cleanup
+- [ ] Purge Lovable: `lovable-tagger` dep, OG/twitter meta → real Next `metadata`.
+- [ ] `README.md` rewrite.
+- [ ] Merge scaffold `AGENTS.md` with any project conventions.
+- [ ] Ensure `.gitignore` covers `.next/`.
+
+---
+
+## 10. Verification checklist
+
+- [ ] `bun run build` clean
+- [ ] `bun run typecheck` clean — note `strict: false` today vs the scaffold's
+      `strict: true`. Expect new errors (`strictNullChecks` especially, given
+      `canvas?: Canvas` optional props flow into non-optional reads). Decide:
+      loosen `tsconfig.json` to match the old settings, or fix properly.
+- [ ] `bun run lint` clean
+- [ ] All 4 routes render; deep links work (hard refresh on `/profile`)
+- [ ] 404 renders on an unknown path
+- [ ] Sidebar navigation + collapse works
+- [ ] Create-canvas modal → new card appears
+- [ ] Canvas editor: add text section → save → appears in "Saved Sections"
+- [ ] Image upload + drag/drop
+- [ ] Export PDF opens print dialog
+- [ ] Share modal: copy link (`navigator.clipboard` needs HTTPS/localhost)
+- [ ] Customer view: post a comment
+- [ ] **Light and dark both legible**
+- [ ] Mobile widths — sidebar sheet behavior
+
+---
+
+## 11. Risks
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Radix → Base UI API drift in `sidebar` (the most complex primitive) | **High** | Take the registry's `sidebar.tsx` verbatim; adapt `AppSidebar` to it, never the reverse |
+| `strict: true` surfaces latent null-safety bugs | Med | Budget time; or match old tsconfig looseness initially and tighten later |
+| `space-x-*` v4 selector change silently shifts 45 spots | Med | Convert to `gap-*` rather than trusting compat |
+| Bare `border` renders `currentColor` | Med | Explicit `border-border` on all 10 |
+| Hugeicons glyphs differ despite matching names | Low | Visual pass |
+| Next 16 APIs differ from training data | Med | **Read `node_modules/next/dist/docs/` per AGENTS.md** |
+| Merge step clobbers `.git` | **High** | `rsync --exclude .git`; verify `git log` after |
+
+---
+
+## 12. Open items for later (explicitly out of scope)
+
+- Promote `CanvasEditor` to a real `/canvas/[id]` route
+- Replace hand-rolled `ShareModal` / `CreateCanvasModal` `fixed inset-0` overlays
+  with the registry `dialog` (present in `base-luma`)
+- Replace the native `<select>` status filter with registry `select`
+- Real persistence — everything is `useState` mock data today
+- `pdfExport.ts` uses `document.write`; consider a real PDF lib
+- Add a theme toggle UI (`next-themes` is wired; the scaffold only binds the
+  `d` hotkey)
