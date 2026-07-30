@@ -1,73 +1,76 @@
-# Welcome to your Lovable project
+# Canvas Manager
 
-## Project info
+Client canvas management for tailors — track projects, measurements, pricing, and
+design notes per client, and share a read-only view with the customer.
 
-**URL**: https://lovable.dev/projects/90a84f70-bd12-4d61-9052-a207685d39e5
+## Stack
 
-## How can I edit this code?
+| | |
+|---|---|
+| Framework | Next.js 16 (App Router, Turbopack) |
+| UI | React 19 |
+| Styling | Tailwind CSS v4 (CSS-first — no `tailwind.config`) |
+| Components | shadcn/ui, `base-luma` style, on [Base UI](https://base-ui.com) |
+| Icons | [Hugeicons](https://hugeicons.com) |
+| Fonts | Inter (sans + headings), Geist Mono |
+| Runtime | Bun |
 
-There are several ways of editing your application.
+## Getting started
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/90a84f70-bd12-4d61-9052-a207685d39e5) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```bash
+bun install
+bun run dev          # http://localhost:3000
 ```
 
-**Edit a file directly in GitHub**
+| Script | |
+|---|---|
+| `bun run dev` | dev server |
+| `bun run build` | production build |
+| `bun run start` | serve the production build |
+| `bun run lint` | ESLint |
+| `bun run typecheck` | `tsc --noEmit` |
+| `bun run format` | Prettier |
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Routes
 
-**Use GitHub Codespaces**
+| Path | |
+|---|---|
+| `/` | Dashboard — canvas grid/list, search, status filter, canvas editor |
+| `/profile` | Tailor profile |
+| `/customer-view` | Read-only client view with comments |
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Structure
 
-## What technologies are used for this project?
+```
+app/            routes, root layout, globals.css
+components/     app components
+components/ui/  shadcn primitives — regenerate, don't hand-edit
+hooks/          use-mobile
+lib/            cn(), shared types, PDF export
+```
 
-This project is built with:
+## Theming
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+All colors are semantic tokens (`bg-primary`, `text-muted-foreground`,
+`border-border`) defined as `oklch()` values in `app/globals.css`. The palette is
+gold on neutral greys. Light and dark are both defined — `next-themes` follows the
+system setting, and `d` toggles it.
 
-## How can I deploy this project?
+Prefer tokens over literal color classes so both themes stay correct.
 
-Simply open [Lovable](https://lovable.dev/projects/90a84f70-bd12-4d61-9052-a207685d39e5) and click on Share -> Publish.
+## Adding components
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+bunx --bun shadcn@latest add <component>
+```
 
-Yes, you can!
+Components resolve against the `base-luma` style set in `components.json`. Note
+these are **Base UI**, not Radix: composition uses the `render` prop rather than
+`asChild`.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Notes
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- Data is in-memory mock state; there is no persistence layer yet.
+- `lib/pdfExport.ts` opens a print window rather than generating a real PDF.
+
+See `MIGRATION.lips` for the record of the Vite → Next.js migration.
