@@ -1,6 +1,9 @@
+"use client"
 
-import React from 'react';
-import { Home, User, Palette, Bell, Settings, Eye } from 'lucide-react';
+import React from "react"
+import Link from "next/link"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { Home, User, Palette, Bell, Settings, Eye } from "@hugeicons/core-free-icons"
 import {
   Sidebar,
   SidebarContent,
@@ -10,7 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from '@/components/ui/sidebar';
+} from "@/components/ui/sidebar"
 
 const menuItems = [
   {
@@ -43,7 +46,7 @@ const menuItems = [
     url: "/settings",
     icon: Settings,
   },
-];
+]
 
 export function AppSidebar() {
   return (
@@ -55,11 +58,9 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <a href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </a>
+                  <SidebarMenuButton render={<Link href={item.url} />}>
+                    <HugeiconsIcon icon={item.icon} />
+                    <span>{item.title}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -68,5 +69,5 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  );
+  )
 }

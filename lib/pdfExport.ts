@@ -1,5 +1,6 @@
+import type { Canvas } from "@/lib/types"
 
-export const exportToPDF = (canvas: any, ownerName: string) => {
+export const exportToPDF = (canvas: Canvas, ownerName: string) => {
   // Simple PDF export implementation
   // In a real app, you'd use a library like jsPDF or Puppeteer
   
