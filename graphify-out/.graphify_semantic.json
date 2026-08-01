@@ -1,0 +1,262 @@
+{
+  "nodes": [
+    {
+      "id": "readme_canvas_manager",
+      "label": "Canvas Manager",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_nextjs_16",
+      "label": "Next.js 16 App Router",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_tailwind_css_v4",
+      "label": "Tailwind CSS v4",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_shadcn_ui",
+      "label": "shadcn/ui Base Luma",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_base_ui",
+      "label": "Base UI",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_hugeicons",
+      "label": "Hugeicons",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_dashboard_route",
+      "label": "Dashboard Route",
+      "file_type": "document",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_profile_route",
+      "label": "Profile Route",
+      "file_type": "document",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_customer_view_route",
+      "label": "Customer View Route",
+      "file_type": "document",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_theming_system",
+      "label": "Theming System",
+      "file_type": "concept",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "readme_in_memory_state",
+      "label": "In-Memory Mock State",
+      "file_type": "rationale",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_nextjs_rules",
+      "label": "Next.js Agent Rules",
+      "file_type": "document",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_robots_seo_config",
+      "label": "SEO Robots Config",
+      "file_type": "document",
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/public/robots.txt",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_nextjs_16",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_nextjs_16",
+      "target": "readme_tailwind_css_v4",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_shadcn_ui",
+      "target": "readme_base_ui",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_dashboard_route",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_profile_route",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_customer_view_route",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_theming_system",
+      "target": "readme_tailwind_css_v4",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_in_memory_state",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_nextjs_rules",
+      "target": "readme_nextjs_16",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "readme_canvas_manager",
+      "target": "readme_hugeicons",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "ui_stack",
+      "label": "UI Component Stack",
+      "nodes": ["readme_shadcn_ui", "readme_base_ui", "readme_tailwind_css_v4", "readme_hugeicons"],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "/Users/paulkinyatti/learnings/fashion-hub/README.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

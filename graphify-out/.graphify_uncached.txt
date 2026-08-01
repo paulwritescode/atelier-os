@@ -1,0 +1,3 @@
+/Users/paulkinyatti/learnings/fashion-hub/AGENTS.md
+/Users/paulkinyatti/learnings/fashion-hub/README.md
+/Users/paulkinyatti/learnings/fashion-hub/public/robots.txt

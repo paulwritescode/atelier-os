@@ -1,0 +1,454 @@
+{
+  "communities": {
+    "0": [
+      "components_appsidebar",
+      "components_appsidebar_menuitems",
+      "components_ui_separator",
+      "components_ui_separator_separator",
+      "components_ui_sheet",
+      "components_ui_sheet_sheet",
+      "components_ui_sheet_sheetclose",
+      "components_ui_sheet_sheetcontent",
+      "components_ui_sheet_sheetdescription",
+      "components_ui_sheet_sheetfooter",
+      "components_ui_sheet_sheetheader",
+      "components_ui_sheet_sheetoverlay",
+      "components_ui_sheet_sheetportal",
+      "components_ui_sheet_sheettitle",
+      "components_ui_sheet_sheettrigger",
+      "components_ui_sidebar",
+      "components_ui_sidebar_sidebar",
+      "components_ui_sidebar_sidebarcontent",
+      "components_ui_sidebar_sidebarcontext",
+      "components_ui_sidebar_sidebarcontextprops",
+      "components_ui_sidebar_sidebarfooter",
+      "components_ui_sidebar_sidebargroup",
+      "components_ui_sidebar_sidebargroupaction",
+      "components_ui_sidebar_sidebargroupcontent",
+      "components_ui_sidebar_sidebargrouplabel",
+      "components_ui_sidebar_sidebarheader",
+      "components_ui_sidebar_sidebarinput",
+      "components_ui_sidebar_sidebarinset",
+      "components_ui_sidebar_sidebarmenu",
+      "components_ui_sidebar_sidebarmenuaction",
+      "components_ui_sidebar_sidebarmenubadge",
+      "components_ui_sidebar_sidebarmenubutton",
+      "components_ui_sidebar_sidebarmenubuttonvariants",
+      "components_ui_sidebar_sidebarmenuitem",
+      "components_ui_sidebar_sidebarmenuskeleton",
+      "components_ui_sidebar_sidebarmenusub",
+      "components_ui_sidebar_sidebarmenusubbutton",
+      "components_ui_sidebar_sidebarmenusubitem",
+      "components_ui_sidebar_sidebarrail",
+      "components_ui_sidebar_sidebarseparator",
+      "components_ui_sidebar_sidebartrigger",
+      "components_ui_sidebar_usesidebar",
+      "components_ui_skeleton",
+      "components_ui_skeleton_skeleton",
+      "components_ui_tooltip",
+      "components_ui_tooltip_tooltip",
+      "components_ui_tooltip_tooltipcontent",
+      "components_ui_tooltip_tooltipprovider",
+      "components_ui_tooltip_tooltiptrigger",
+      "lib_utils",
+      "lib_utils_cn"
+    ],
+    "1": [
+      "app_page",
+      "app_page_index",
+      "app_profile_page",
+      "app_profile_page_profile",
+      "components_appsidebar_appsidebar",
+      "components_canvascard",
+      "components_canvascard_canvascard",
+      "components_canvascard_canvascardprops",
+      "components_canvascard_statuscolors",
+      "components_canvaseditor",
+      "components_canvaseditor_canvaseditor",
+      "components_canvaseditor_canvaseditorprops",
+      "components_canvaseditor_savedsection",
+      "components_canvaseditor_textsection",
+      "components_clientinfopanel",
+      "components_clientinfopanel_clientinfopanel",
+      "components_clientinfopanel_clientinfopanelprops",
+      "components_createcanvasmodal",
+      "components_createcanvasmodal_createcanvasmodal",
+      "components_createcanvasmodal_createcanvasmodalprops",
+      "components_sharemodal",
+      "components_sharemodal_sharemodal",
+      "components_sharemodal_sharemodalprops",
+      "components_ui_button",
+      "components_ui_button_button",
+      "components_ui_button_buttonvariants",
+      "components_ui_input",
+      "components_ui_input_input",
+      "components_ui_label",
+      "components_ui_label_label",
+      "components_ui_textarea",
+      "components_ui_textarea_textarea",
+      "lib_pdfexport",
+      "lib_pdfexport_exporttopdf",
+      "lib_types",
+      "lib_types_canvas",
+      "lib_types_canvasstatus",
+      "lib_types_canvasupdate",
+      "lib_types_comment",
+      "lib_types_newcanvasinput"
+    ],
+    "2": [
+      "ref_dom",
+      "ref_dom_iterable",
+      "ref_esnext",
+      "ref_mts",
+      "ref_next_config_ts",
+      "ref_next_dev_types_ts",
+      "ref_next_env_d_ts",
+      "ref_next_types_ts",
+      "ref_node_modules",
+      "ref_ts",
+      "ref_tsx",
+      "tsconfig",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_esmoduleinterop",
+      "tsconfig_compileroptions_incremental",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_plugins",
+      "tsconfig_compileroptions_resolvejsonmodule",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_strict",
+      "tsconfig_compileroptions_target",
+      "tsconfig_exclude",
+      "tsconfig_include"
+    ],
+    "3": [
+      "base_ui_react",
+      "class_variance_authority",
+      "clsx",
+      "hugeicons_core_free_icons",
+      "hugeicons_react",
+      "next",
+      "next_themes",
+      "package_dependencies",
+      "package_dependencies_base_ui_react",
+      "package_dependencies_class_variance_authority",
+      "package_dependencies_clsx",
+      "package_dependencies_hugeicons_core_free_icons",
+      "package_dependencies_hugeicons_react",
+      "package_dependencies_next",
+      "package_dependencies_next_themes",
+      "package_dependencies_react_dom",
+      "package_dependencies_shadcn",
+      "package_dependencies_sonner",
+      "package_dependencies_tailwind_merge",
+      "package_dependencies_tw_animate_css",
+      "react_dom",
+      "shadcn",
+      "sonner",
+      "tailwind_merge",
+      "tw_animate_css"
+    ],
+    "4": [
+      "components",
+      "components_aliases",
+      "components_aliases_components",
+      "components_aliases_hooks",
+      "components_aliases_lib",
+      "components_aliases_ui",
+      "components_aliases_utils",
+      "components_iconlibrary",
+      "components_menuaccent",
+      "components_menucolor",
+      "components_registries",
+      "components_rsc",
+      "components_rtl",
+      "components_schema",
+      "components_style",
+      "components_tailwind",
+      "components_tailwind_basecolor",
+      "components_tailwind_config",
+      "components_tailwind_css",
+      "components_tailwind_cssvariables",
+      "components_tailwind_prefix",
+      "components_tsx"
+    ],
+    "5": [
+      "eslint",
+      "eslint_config_next",
+      "package_devdependencies",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_config_next",
+      "package_devdependencies_prettier",
+      "package_devdependencies_prettier_plugin_tailwindcss",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_tailwindcss_postcss",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_types_react_dom",
+      "package_devdependencies_typescript",
+      "prettier",
+      "prettier_plugin_tailwindcss",
+      "tailwindcss",
+      "tailwindcss_postcss",
+      "types_node",
+      "types_react",
+      "types_react_dom",
+      "typescript"
+    ],
+    "6": [
+      "app_layout",
+      "app_layout_fontmono",
+      "app_layout_inter",
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "components_theme_provider",
+      "components_theme_provider_istypingtarget",
+      "components_theme_provider_themehotkey",
+      "components_theme_provider_themeprovider",
+      "components_ui_sidebar_sidebarprovider",
+      "components_ui_sonner",
+      "components_ui_sonner_toaster",
+      "hooks_use_mobile",
+      "hooks_use_mobile_useismobile",
+      "package_dependencies_react",
+      "react"
+    ],
+    "7": [
+      "package",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_format",
+      "package_scripts_lint",
+      "package_scripts_start",
+      "package_scripts_typecheck",
+      "package_type",
+      "package_version"
+    ],
+    "8": [
+      "agents_nextjs_rules",
+      "readme_canvas_manager",
+      "readme_customer_view_route",
+      "readme_dashboard_route",
+      "readme_hugeicons",
+      "readme_in_memory_state",
+      "readme_nextjs_16",
+      "readme_profile_route",
+      "readme_tailwind_css_v4",
+      "readme_theming_system"
+    ],
+    "9": [
+      "app_customer_view_page",
+      "app_customer_view_page_customerview",
+      "components_ui_card",
+      "components_ui_card_card",
+      "components_ui_card_cardaction",
+      "components_ui_card_cardcontent",
+      "components_ui_card_carddescription",
+      "components_ui_card_cardfooter",
+      "components_ui_card_cardheader",
+      "components_ui_card_cardtitle"
+    ],
+    "10": [
+      "vercel",
+      "vercel_framework",
+      "vercel_schema"
+    ],
+    "11": [
+      "app_not_found",
+      "app_not_found_notfound"
+    ],
+    "12": [
+      "eslint_config",
+      "eslint_config_eslintconfig"
+    ],
+    "13": [
+      "next_config",
+      "next_config_nextconfig"
+    ],
+    "14": [
+      "postcss_config",
+      "postcss_config_config"
+    ],
+    "15": [
+      "readme_base_ui",
+      "readme_shadcn_ui"
+    ],
+    "16": [
+      "public_robots_seo_config"
+    ]
+  },
+  "cohesion": {
+    "0": 0.08862745098039215,
+    "1": 0.1358974358974359,
+    "2": 0.06666666666666667,
+    "3": 0.08,
+    "4": 0.09090909090909091,
+    "5": 0.09523809523809523,
+    "6": 0.15,
+    "7": 0.16666666666666666,
+    "8": 0.2,
+    "9": 0.3111111111111111,
+    "10": 0.6666666666666666,
+    "11": 1.0,
+    "12": 1.0,
+    "13": 1.0,
+    "14": 1.0,
+    "15": 1.0,
+    "16": 1.0
+  },
+  "gods": [
+    {
+      "id": "lib_utils_cn",
+      "label": "cn()",
+      "degree": 56
+    },
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 16
+    },
+    {
+      "id": "components_ui_button_button",
+      "label": "Button()",
+      "degree": 12
+    },
+    {
+      "id": "lib_types_canvas",
+      "label": "Canvas",
+      "degree": 11
+    },
+    {
+      "id": "components_ui_input_input",
+      "label": "Input()",
+      "degree": 9
+    },
+    {
+      "id": "components_ui_label_label",
+      "label": "Label()",
+      "degree": 8
+    },
+    {
+      "id": "tsconfig_include",
+      "label": "include",
+      "degree": 8
+    },
+    {
+      "id": "components_ui_textarea_textarea",
+      "label": "Textarea()",
+      "degree": 7
+    },
+    {
+      "id": "package_scripts",
+      "label": "scripts",
+      "degree": 7
+    },
+    {
+      "id": "package_dependencies_react",
+      "label": "react",
+      "degree": 7
+    }
+  ],
+  "surprises": [
+    {
+      "source": "RootLayout()",
+      "target": "cn()",
+      "source_files": [
+        "app/layout.tsx",
+        "lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `RootLayout()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "CardAction()",
+      "target": "cn()",
+      "source_files": [
+        "components/ui/card.tsx",
+        "lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `CardAction()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "CardFooter()",
+      "target": "cn()",
+      "source_files": [
+        "components/ui/card.tsx",
+        "lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `CardFooter()` unexpectedly reaches hub `cn()`"
+    },
+    {
+      "source": "CanvasCardProps",
+      "target": "Canvas",
+      "source_files": [
+        "components/CanvasCard.tsx",
+        "lib/types.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `CanvasCardProps` unexpectedly reaches hub `Canvas`"
+    },
+    {
+      "source": "ClientInfoPanelProps",
+      "target": "Canvas",
+      "source_files": [
+        "components/ClientInfoPanel.tsx",
+        "lib/types.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `ClientInfoPanelProps` unexpectedly reaches hub `Canvas`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `dependencies` connect `Community 3` to `Community 6`, `Community 7`?",
+      "why": "High betweenness centrality (0.248) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `react` connect `Community 6` to `Community 0`, `Community 3`?",
+      "why": "High betweenness centrality (0.223) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `cn()` connect `Community 0` to `Community 1`, `Community 6`, `Community 9`?",
+      "why": "High betweenness centrality (0.152) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `inter`, `fontMono`, `metadata` to the rest of the system?",
+      "why": "101 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.08862745098039215 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.1358974358974359 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
