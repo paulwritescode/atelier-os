@@ -1,0 +1,361 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Anio Regalia Operating System — Design Tokens v1.0
+   Source of truth: newdesigntokens.md (approved)
+
+   PRIMARY PALETTE
+     Deep Burgundy   #4B1E2A  — primary actions, sidebar, CTAs, selected states
+     Antique Gold    #C8A46B  — accents, section labels, focus borders
+     Warm Ivory      #F6F2EC  — application background, hero, surface tint
+
+   NEUTRAL PALETTE
+     White           #FFFFFF  — cards, inputs, dropdowns, modals
+     Soft Ivory      #F8F6F2  — hover backgrounds, skeleton loaders, large surfaces
+     Stone           #E7E2DB  — borders, dividers, disabled inputs
+     Warm Gray       #8C857D  — secondary text, icons, descriptions, metadata
+     Charcoal        #1B1A17  — primary text, titles, headings
+
+   SEMANTIC
+     Success         #2E6B4E
+     Warning         #B8862B
+     Danger          #8C2F2F
+     Info            #2F4A6D
+
+   SHADOWS (only three permitted)
+     Card      0 2px 8px rgba(20,20,19,.06)
+     Elevated  0 8px 24px rgba(20,20,19,.08)
+     Floating  0 16px 40px rgba(20,20,19,.10)
+
+   RADIUS
+     Small   8px   — inputs, checkboxes, badges
+     Medium  12px  — dropdowns, menus, popovers
+     Large   20px  — panels, containers
+     Card    24px  — project cards, stat cards, hero cards
+     Pill    999px — buttons, search, badges, tabs
+
+   TYPOGRAPHY
+     Display  Playfair Display — hero, section titles, project titles, stats
+     Interface Inter            — everything else
+═══════════════════════════════════════════════════════════════════════════ */
+
+@theme inline {
+    --font-heading: var(--font-heading);
+    --font-sans:    var(--font-sans);
+    --font-mono:    var(--font-mono);
+
+    /* Colour → Tailwind utility mappings */
+    --color-background:         var(--background);
+    --color-foreground:         var(--foreground);
+    --color-card:               var(--card);
+    --color-card-foreground:    var(--card-foreground);
+    --color-popover:            var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-primary:            var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-secondary:          var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-muted:              var(--muted);
+    --color-muted-foreground:   var(--muted-foreground);
+    --color-accent:             var(--accent);
+    --color-accent-foreground:  var(--accent-foreground);
+    --color-destructive:        var(--destructive);
+    --color-border:             var(--border);
+    --color-input:              var(--input);
+    --color-ring:               var(--ring);
+    --color-success:            var(--success);
+    --color-success-foreground: var(--success-foreground);
+
+    /* Sidebar */
+    --color-sidebar:                    var(--sidebar);
+    --color-sidebar-foreground:         var(--sidebar-foreground);
+    --color-sidebar-primary:            var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent:             var(--sidebar-accent);
+    --color-sidebar-accent-foreground:  var(--sidebar-accent-foreground);
+    --color-sidebar-border:             var(--sidebar-border);
+    --color-sidebar-ring:               var(--sidebar-ring);
+
+    /* ── Radius scale — spec verbatim ────────────────────────────────── */
+    --radius-sm:  0.5rem;    /*  8px — inputs, checkboxes, badges         */
+    --radius-md:  0.75rem;   /* 12px — dropdowns, menus, popovers         */
+    --radius-lg:  1.25rem;   /* 20px — panels, containers                 */
+    --radius-xl:  1.5rem;    /* 24px — project cards, stat cards          */
+    --radius-2xl: 1.5rem;    /* 24px (alias)                              */
+    --radius-3xl: 1.5rem;    /* 24px (alias)                              */
+    --radius-4xl: 999px;     /* pill — buttons, search, tabs              */
+
+    /* shadcn base (drives calc() variants internally) */
+    --radius: 0.75rem;
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:root {
+    /* Surfaces */
+    --background:           #F6F2EC;   /* Warm Ivory — app canvas           */
+    --foreground:           #1B1A17;   /* Charcoal — primary text           */
+
+    /* Card / Popover — pure white */
+    --card:                 #FFFFFF;
+    --card-foreground:      #1B1A17;
+    --popover:              #FFFFFF;
+    --popover-foreground:   #1B1A17;
+
+    /* Primary — Deep Burgundy */
+    --primary:              #4B1E2A;
+    --primary-foreground:   #FFFFFF;
+
+    /* Secondary — Soft Ivory surface */
+    --secondary:            #F3EFEA;
+    --secondary-foreground: #1B1A17;
+
+    /* Muted */
+    --muted:                #F3EFEA;   /* Soft Ivory — hover, skeleton      */
+    --muted-foreground:     #5C5852;   /* Warm Gray — secondary text        */
+
+    /* Accent — Antique Gold */
+    --accent:               #C8A46B;
+    --accent-foreground:    #1B1A17;
+
+    /* Semantic */
+    --destructive:          #8C2F2F;   /* Danger                            */
+    --success:              #2E6B4E;
+    --success-foreground:   #FFFFFF;
+    --warning:              #B8862B;
+    --info:                 #2F4A6D;
+
+    /* Border / Input / Ring */
+    --border:               #E7E2DB;   /* Stone                             */
+    --input:                #E7E2DB;
+    --ring:                 #C8A46B;   /* Antique Gold focus ring           */
+
+    /* Radius base */
+    --radius: 0.75rem;
+
+    /* ── Sidebar — Deep Burgundy identity ──────────────────────────── */
+    --sidebar:              #4B1E2A;
+    --sidebar-foreground:   rgba(255,255,255,0.90);
+    --sidebar-primary:      #C8A46B;   /* Antique Gold — active / brand     */
+    --sidebar-primary-foreground: #1B1A17;
+    --sidebar-accent:       #5E2535;   /* Lighter burgundy — hover / active */
+    --sidebar-accent-foreground: #FFFFFF;
+    --sidebar-border:       rgba(255,255,255,0.08);
+    --sidebar-ring:         #C8A46B;
+
+    /* ── Named tokens (use in inline styles & component CSS) ─────────── */
+    --ar-burgundy:          #4B1E2A;
+    --ar-burgundy-hover:    #5E2535;
+    --ar-gold:              #C8A46B;
+    --ar-ivory:             #F6F2EC;
+    --ar-white:             #FFFFFF;
+    --ar-soft-ivory:        #F3EFEA;
+    --ar-stone:             #E7E2DB;
+    --ar-warm-gray:         #5C5852;
+    --ar-charcoal:          #1B1A17;
+    --ar-success:           #2E6B4E;
+    --ar-warning:           #B8862B;
+    --ar-danger:            #8C2F2F;
+    --ar-info:              #2F4A6D;
+
+    /* Shadow tokens — only these three */
+    --shadow-card:          0 2px 8px rgba(20,20,19,.06);
+    --shadow-elevated:      0 8px 24px rgba(20,20,19,.08);
+    --shadow-floating:      0 16px 40px rgba(20,20,19,.10);
+
+    /* Z-index tokens */
+    --z-dropdown:           100;
+    --z-sticky:             200;
+    --z-sidebar:            300;
+    --z-modal-overlay:      900;
+    --z-modal:              1000;
+    --z-toast:              1100;
+    --z-command:            1200;
+
+    /* Motion tokens */
+    --duration-fast:        150ms;
+    --duration-normal:      200ms;
+    --duration-slow:        300ms;
+    --ease-default:         ease-out;
+
+    /* Grid tokens */
+    --grid-sidebar-width:   280px;
+    --grid-topnav-height:   72px;
+    --grid-content-max:     1440px;
+    --grid-content-padding: 40px;
+    --grid-card-gap:        24px;
+    --grid-section-gap:     48px;
+    --grid-page-gap:        64px;
+}
+
+/* ── Dark mode ──────────────────────────────────────────────────────────── */
+.dark {
+    --background:           #1A1210;
+    --foreground:           #F0EBE3;
+
+    --card:                 #221816;
+    --card-foreground:      #F0EBE3;
+    --popover:              #221816;
+    --popover-foreground:   #F0EBE3;
+
+    --primary:              #7A3045;
+    --primary-foreground:   #FFFFFF;
+
+    --secondary:            #2A201C;
+    --secondary-foreground: #F0EBE3;
+
+    --muted:                #2A201C;
+    --muted-foreground:     #9A8F86;
+
+    --accent:               #C8A46B;
+    --accent-foreground:    #1B1A17;
+
+    --destructive:          #A84040;
+    --success:              #3A8A62;
+    --success-foreground:   #FFFFFF;
+
+    --border:               rgba(255,255,255,0.10);
+    --input:                rgba(255,255,255,0.12);
+    --ring:                 #C8A46B;
+
+    --sidebar:              #120D0B;
+    --sidebar-foreground:   rgba(255,255,255,0.88);
+    --sidebar-primary:      #C8A46B;
+    --sidebar-primary-foreground: #1B1A17;
+    --sidebar-accent:       #2A1820;
+    --sidebar-accent-foreground: #FFFFFF;
+    --sidebar-border:       rgba(255,255,255,0.06);
+    --sidebar-ring:         #C8A46B;
+}
+
+/* ── Base layer ─────────────────────────────────────────────────────────── */
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+        box-sizing: border-box;
+    }
+
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-sans);
+        font-size: 15px;       /* Body — 15px / 400 / lh 24px              */
+        font-weight: 400;
+        line-height: 1.6;      /* 24px / 15px                               */
+        letter-spacing: 0;
+    }
+
+    /* ── Type scale — spec verbatim ─────────────────────────────────── */
+
+    /* Hero — 56px / 700 / lh 64px — Playfair Display */
+    .text-hero {
+        font-family: var(--font-heading);
+        font-size: 56px;
+        font-weight: 700;
+        line-height: 64px;
+        letter-spacing: -0.01em;
+        color: var(--ar-charcoal);
+    }
+
+    /* H1 — 48px / 600 / lh 56px */
+    h1 {
+        font-family: var(--font-heading);
+        font-size: 48px;
+        font-weight: 600;
+        line-height: 56px;
+        letter-spacing: -0.01em;
+        color: var(--ar-charcoal);
+    }
+
+    /* H2 — 36px / 600 / lh 44px */
+    h2 {
+        font-family: var(--font-heading);
+        font-size: 36px;
+        font-weight: 600;
+        line-height: 44px;
+        letter-spacing: -0.005em;
+        color: var(--ar-charcoal);
+    }
+
+    /* H3 — 28px / 600 / lh 36px */
+    h3 {
+        font-family: var(--font-heading);
+        font-size: 28px;
+        font-weight: 600;
+        line-height: 36px;
+        color: var(--ar-charcoal);
+    }
+
+    /* H4 — 20px / 600 / lh 28px */
+    h4 {
+        font-family: var(--font-heading);
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 28px;
+        color: var(--ar-charcoal);
+    }
+
+    /* Body Large — 16px / 400 / lh 28px */
+    .text-body-lg {
+        font-family: var(--font-sans);
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 28px;
+    }
+
+    /* Small — 14px / 400 / lh 20px */
+    small, .text-sm {
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+    }
+
+    /* Caption — 12px / 500 / lh 18px */
+    .text-caption {
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 18px;
+    }
+
+    /* Eyebrow — 11px / 700 / uppercase / ls 8% */
+    .text-eyebrow {
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ar-gold);
+    }
+
+    p {
+        font-size: 15px;
+        line-height: 24px;
+        color: var(--ar-charcoal);
+    }
+
+    /* Numeric display — JetBrains Mono for stats, metrics, amounts, dates */
+    .font-numeric {
+        font-family: var(--font-mono);
+        font-variant-numeric: tabular-nums;
+    }
+
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    a {
+        color: inherit;
+        text-decoration: none;
+    }
+}

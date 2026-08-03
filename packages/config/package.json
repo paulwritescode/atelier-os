@@ -1,0 +1,13 @@
+{
+  "name": "@anio/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig/base": "./tsconfig.base.json",
+    "./tsconfig/next": "./tsconfig.next.json"
+  },
+  "scripts": {
+    "build": "echo 'config: no build needed'"
+  }
+}

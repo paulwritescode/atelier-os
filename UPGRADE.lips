@@ -1,0 +1,795 @@
+;; UPGRADE.lips
+;; Machine instruction file — full-scale Anio Regalia Operating System build
+;; Version: 3.0  (supersedes v2.0 — adds monorepo, Convex, BetterAuth, Hono)
+;;
+;; SOURCE DOCS (authoritative — always read the relevant section before executing any step):
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Product.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Business domain.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Business workflows.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Technical architecture.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Engineering standards.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Project language.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Records architectural and product decisions.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Evolution roadmap.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/Appendix.md
+;;   /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/AI Assistant.md
+;;
+;; CURRENT PROJECT STATE (verified Aug 3 2026):
+;;   Stack: Next.js 16.2.6, React 19, Tailwind v4, shadcn, @hugeicons/react,
+;;          next-themes, sonner, Playfair Display + Inter + JetBrains Mono.
+;;          Package manager: bun. Monorepo: NOT YET (flat structure).
+;;          No backend. No auth. No Convex. No R2. No Hono.
+;;
+;;   Design system v2 implemented (newdesigntokens.md):
+;;     Deep Burgundy #4B1E2A, Antique Gold #C8A46B, Warm Ivory #F6F2EC
+;;     Cards: pure white #FFFFFF. Typography: Playfair Display + Inter + JetBrains Mono
+;;     Project slugs in routes: /projects/[slug]
+;;
+;;   Pages: / (dashboard), /projects/[slug], /clients, /clients/[id], /calendar,
+;;          /production, /appointments, /payments, /documents, /notifications,
+;;          /profile, /settings, /client-portal, not-found
+;;   Components: AppSidebar, ProjectCard, ProjectEditor, CreateProjectModal,
+;;              ClientInfoPanel, ShareModal, project/* panels
+;;   Types: Full domain model in lib/types.ts (Staff, Client, Project w/ slug,
+;;          Participant, Measurement, Garment, etc.)
+;;
+;; GOAL:
+;;   Transform this from a frontend prototype into a full-stack production system.
+;;   Turborepo monorepo. Convex database + real-time. BetterAuth authentication.
+;;   Hono API layer. Cloudflare R2 media storage.
+;;
+;; ═══════════════════════════════════════════════════════════════════════════
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; PHASE 1 — SCAFFOLD MONOREPO (Turborepo + pnpm)
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(phase :id "P1" :name "Scaffold Monorepo"
+
+  ;; Ref: Technical architecture.md §Repository Structure §Technology Stack
+  ;; Ref: Engineering standards.md §Monorepo §Repository Structure
+  ;; Ref: ADR-001 (monorepo with Turborepo)
+  ;;
+  ;; Target layout:
+  ;;   apps/
+  ;;     web/                 ← current Next.js app moves here
+  ;;   packages/
+  ;;     ui/                  ← components/ui/ moves here (shadcn primitives)
+  ;;     types/               ← lib/types.ts + shared type exports
+  ;;     utils/               ← lib/utils.ts + shared utility exports
+  ;;     config/              ← tsconfig base, eslint base, tailwind preset
+  ;;   convex/                ← stays at root (Convex CLI requirement)
+  ;;   turbo.json
+  ;;   pnpm-workspace.yaml
+  ;;   package.json (root — scripts only, no app deps)
+
+  (task :id "P1.1" :name "Initialize pnpm workspace + Turborepo"
+    ;; 1. Remove bun.lock (switching package manager)
+    ;; 2. Create pnpm-workspace.yaml:
+    ;;      packages:
+    ;;        - "apps/*"
+    ;;        - "packages/*"
+    ;; 3. Create root package.json:
+    ;;      name: "anio-regalia-os"
+    ;;      private: true
+    ;;      scripts:
+    ;;        dev: "turbo dev"
+    ;;        build: "turbo build"
+    ;;        lint: "turbo lint"
+    ;;        typecheck: "turbo typecheck"
+    ;;      devDependencies: turbo
+    ;; 4. Create turbo.json:
+    ;;      pipeline: build, dev, lint, typecheck
+    ;;      globalDependencies: [".env*"]
+    ;; 5. pnpm install
+    (create-files
+      ["pnpm-workspace.yaml" "turbo.json" "package.json"]))
+
+  (task :id "P1.2" :name "Move Next.js app into apps/web/"
+    ;; 1. Create apps/web/
+    ;; 2. Move: app/, components/, lib/, public/, next.config.ts,
+    ;;          tsconfig.json, tailwind.config.ts (if any), postcss.config.*,
+    ;;          eslint.config.mjs, components.json, globals.css → apps/web/
+    ;; 3. Update apps/web/package.json:
+    ;;      name: "@anio/web"
+    ;;      dependencies: next, react, react-dom, etc. (from current package.json)
+    ;; 4. Verify: cd apps/web && pnpm dev — app starts correctly
+    (move-directory "." "apps/web"))
+
+  (task :id "P1.3" :name "Extract shared packages"
+    ;; packages/types/
+    ;;   Move lib/types.ts → packages/types/src/index.ts
+    ;;   package.json: name "@anio/types", main "src/index.ts"
+    ;;   tsconfig.json: strict, composite
+    ;;
+    ;; packages/utils/
+    ;;   Move lib/utils.ts → packages/utils/src/index.ts
+    ;;   Move lib/pdfExport.ts → packages/utils/src/pdf-export.ts
+    ;;   Add generateProjectSlug to packages/utils/src/slugs.ts
+    ;;   package.json: name "@anio/utils"
+    ;;
+    ;; packages/ui/
+    ;;   Move components/ui/* → packages/ui/src/
+    ;;   Export from packages/ui/src/index.ts
+    ;;   package.json: name "@anio/ui"
+    ;;   Include tailwind preset, shadcn config
+    ;;
+    ;; packages/config/
+    ;;   Shared tsconfig.base.json
+    ;;   Shared eslint base config
+    ;;   Shared tailwind preset with design tokens
+    ;;   package.json: name "@anio/config"
+    ;;
+    ;; Update all imports in apps/web/ to use @anio/* packages.
+    ;; Verify: pnpm build (turborepo) — all packages compile.
+    (create-packages
+      ["packages/types" "packages/utils" "packages/ui" "packages/config"]))
+
+  (task :id "P1.4" :name "Verify clean build"
+    ;; pnpm build — every workspace compiles
+    ;; pnpm typecheck — no type errors
+    ;; pnpm dev — app/web starts and renders correctly
+    ;; Git: commit as "feat: scaffold turborepo monorepo"
+    (verify ["pnpm build" "pnpm typecheck" "pnpm dev"]))
+)
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; PHASE 2 — CONVEX BACKEND (Database + Real-time + Mutations)
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(phase :id "P2" :name "Convex Backend"
+
+  ;; Ref: Technical architecture.md §System Architecture §Database Principles
+  ;; Ref: Engineering standards.md §Convex folder structure
+  ;; Ref: ADR-003, ADR-020, ADR-025
+  ;; Ref: Business domain.md (full entity graph)
+  ;; Ref: Appendix.md §Business Rules §Identifiers §Currency §Date & Time
+  ;;
+  ;; CRITICAL: ADR-025 — NO organizationId, tenantId, or workspaceId anywhere.
+
+  (task :id "P2.1" :name "Initialize Convex"
+    ;; 1. pnpm add convex (at root or apps/web — Convex supports monorepos)
+    ;; 2. npx convex init
+    ;; 3. Creates convex/ at project root with _generated/, schema.ts, etc.
+    ;; 4. Add CONVEX_DEPLOYMENT and NEXT_PUBLIC_CONVEX_URL to .env.local
+    ;; 5. Create convex/convex.config.ts if needed
+    ;; 6. Verify: npx convex dev --once — connects to cloud project
+    (initialize "convex"))
+
+  (task :id "P2.2" :name "Define convex/schema.ts — full domain schema"
+    ;; One table per domain entity. Field names: camelCase.
+    ;; NO organizationId on ANY table.
+    ;;
+    ;; Tables:
+    ;;   staff           { role, name, email, phone?, createdAt, updatedAt }
+    ;;   clients         { type, name, email, phone?, createdAt, updatedAt, createdBy }
+    ;;   projects        { slug, primaryClientId, type, status, title, notes?,
+    ;;                     createdAt, updatedAt, createdBy, archivedAt?, deletedAt? }
+    ;;   participants    { projectId, clientId, role, createdAt }
+    ;;   measurements    { participantId, version, chest, waist, hips, height,
+    ;;                     inseam, shoulder, sleeve, neck, weight?, notes?,
+    ;;                     takenBy, takenAt }
+    ;;   garments        { participantId, projectId, type, status, measurementId,
+    ;;                     notes?, createdAt, createdBy }
+    ;;   productionRecords { garmentId, stage, notes?, updatedBy, updatedAt }
+    ;;   consultations   { projectId, conductedBy, requirements, styleNotes?,
+    ;;                     budget?, timeline?, references[], completedAt?, createdAt }
+    ;;   designs         { consultationId, projectId, style, fabric, color,
+    ;;                     accessories?, references[], notes?, approvedAt?,
+    ;;                     createdAt, createdBy }
+    ;;   quotations      { designId, projectId, items[], depositAmount,
+    ;;                     validUntil, status, sentAt?, acceptedAt?, createdAt, createdBy }
+    ;;   payments        { projectId, quotationId?, type, status, amount,
+    ;;                     recordedBy, paidAt, createdAt }
+    ;;   appointments    { projectId, type, status, staffId, participantIds[],
+    ;;                     scheduledAt, durationMinutes, isHomeVisit, notes?, createdAt }
+    ;;   timelineEvents  { projectId, type, summary, metadata, createdBy, createdAt }
+    ;;   storyUpdates    { projectId, text?, mediaUrls[], publishedAt, expiresAt,
+    ;;                     movedToTimelineAt?, createdBy }
+    ;;   documents       { projectId, type, data, version, createdAt, createdBy }
+    ;;   notifications   { recipientId, recipientType, type, message, readAt?, createdAt }
+    ;;
+    ;; Indexes:
+    ;;   projects:       by_slug, by_status, by_primaryClient, search_title
+    ;;   clients:        by_email, search_name
+    ;;   participants:   by_project, by_client
+    ;;   measurements:   by_participant
+    ;;   garments:       by_project, by_participant
+    ;;   payments:       by_project
+    ;;   appointments:   by_project, by_staff, by_date
+    ;;   timelineEvents: by_project
+    ;;   notifications:  by_recipient
+    (create-file "convex/schema.ts"))
+
+  (task :id "P2.3" :name "Create Convex mutation/query files"
+    ;; One file per domain entity. Engineering standards.md.
+    ;;
+    ;; convex/projects.ts
+    ;;   list()           — filter deletedAt == null, paginate
+    ;;   getBySlug(slug)  — for route resolution
+    ;;   getById(id)      — internal lookups
+    ;;   create(args)     — generates slug, creates TimelineEvent "Project Created"
+    ;;   update(args)     — title, notes, status. Creates TimelineEvent.
+    ;;   archive(id)      — sets archivedAt + TimelineEvent
+    ;;   softDelete(id)   — sets deletedAt. Never hard delete.
+    ;;
+    ;; convex/clients.ts
+    ;;   list(), getById(id), create(args), update(args)
+    ;;
+    ;; convex/participants.ts
+    ;;   add(args), listByProject(projectId), getById(id)
+    ;;
+    ;; convex/measurements.ts
+    ;;   record(args)     — ALWAYS new record. version = max + 1. ADR-009.
+    ;;                      Creates TimelineEvent "Measurements Taken".
+    ;;   listByParticipant(participantId) — sorted version desc
+    ;;   NO update mutation. Period.
+    ;;
+    ;; convex/garments.ts
+    ;;   create(args), updateStatus(id, status), listByProject(projectId)
+    ;;
+    ;; convex/production.ts
+    ;;   updateStage(garmentId, stage, notes, staffId)
+    ;;     — new ProductionRecord. TimelineEvent "Production Stage Updated".
+    ;;   listByGarment(garmentId)
+    ;;
+    ;; convex/consultations.ts
+    ;;   create(args), complete(id) — sets completedAt + TimelineEvent
+    ;;
+    ;; convex/designs.ts
+    ;;   create(args), update(args), approve(id) — sets approvedAt + TimelineEvent
+    ;;
+    ;; convex/quotations.ts
+    ;;   create(args), send(id), accept(id), reject(id) — each + TimelineEvent
+    ;;
+    ;; convex/payments.ts
+    ;;   record(args)    — ALWAYS new. NEVER update. ADR. Appendix §Payments.
+    ;;                     Creates TimelineEvent "Payment Received".
+    ;;   listByProject(projectId)
+    ;;   NO update or delete mutation. Period.
+    ;;
+    ;; convex/appointments.ts
+    ;;   schedule(args), updateStatus(id, status), listByProject(projectId),
+    ;;   listUpcoming(staffId)
+    ;;
+    ;; convex/timeline.ts
+    ;;   create(projectId, type, summary, metadata, createdBy)
+    ;;     — append-only. No update. No delete. ADR-010.
+    ;;   listByProject(projectId) — sorted asc
+    ;;
+    ;; convex/stories.ts
+    ;;   create(args) — sets expiresAt = publishedAt + 24h
+    ;;   listActive(projectId) — expiresAt > now
+    ;;   expire(id) — sets movedToTimelineAt + TimelineEvent "Story Published"
+    ;;
+    ;; convex/documents.ts
+    ;;   create(args), listByProject(projectId), getById(id)
+    ;;   NO mutation stores PDF. ADR-007/008.
+    ;;
+    ;; convex/notifications.ts
+    ;;   create(args), listByRecipient(id), markRead(id), markAllRead(recipientId)
+    (create-files
+      ["convex/projects.ts" "convex/clients.ts" "convex/participants.ts"
+       "convex/measurements.ts" "convex/garments.ts" "convex/production.ts"
+       "convex/consultations.ts" "convex/designs.ts" "convex/quotations.ts"
+       "convex/payments.ts" "convex/appointments.ts" "convex/timeline.ts"
+       "convex/stories.ts" "convex/documents.ts" "convex/notifications.ts"]))
+
+  (task :id "P2.4" :name "Create Convex scheduled jobs + crons"
+    ;; Ref: ADR-021 (automation over manual administration)
+    ;; Ref: Business workflows.md §Automation Rules
+    ;;
+    ;; convex/jobs.ts:
+    ;;   expireStories()          — hourly. Expire where expiresAt < now.
+    ;;   sendAppointmentReminders() — daily. Notify 24h before.
+    ;;   sendPaymentReminders()   — weekly. Active projects with outstanding balance.
+    ;;   cleanupExpiredMedia()    — daily. Stub until R2 phase.
+    ;;
+    ;; convex/crons.ts: register all via Convex cron syntax.
+    (create-files ["convex/jobs.ts" "convex/crons.ts"]))
+
+  (task :id "P2.5" :name "Verify Convex backend"
+    ;; npx convex dev — schema deploys cleanly
+    ;; All mutations/queries type-check
+    ;; Test: create a project via Convex dashboard → appears in useQuery
+    (verify ["npx convex dev" "pnpm typecheck"]))
+)
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; PHASE 3 — AUTHENTICATION (BetterAuth)
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(phase :id "P3" :name "Authentication — BetterAuth"
+
+  ;; Ref: Technical architecture.md §Authentication §Authorization
+  ;; Ref: Engineering standards.md §Authorization table
+  ;; Ref: ADR-020 (backend business logic), ADR-025 (no org partitioning)
+  ;;
+  ;; Auth identifies a person (staff or client). It does NOT determine
+  ;; which business is being accessed. There is only one atelier.
+  ;;
+  ;; Using BetterAuth (https://www.better-auth.com/) instead of Convex Auth.
+  ;; BetterAuth provides: email+password, magic links, sessions, RBAC.
+  ;; Adapter: Convex (store sessions + users in Convex tables).
+
+  (task :id "P3.1" :name "Install and configure BetterAuth"
+    ;; 1. pnpm add better-auth (in apps/web or root)
+    ;; 2. Create lib/auth.ts — BetterAuth server config:
+    ;;      Database adapter: Convex
+    ;;      Email provider: Resend (stub for dev — console log)
+    ;;      Session strategy: cookie-based
+    ;;      Providers: email+password, magic link
+    ;;      User fields: name, email, role (StaffRole | "Client")
+    ;; 3. Create lib/auth-client.ts — BetterAuth client instance
+    ;; 4. Create api route: apps/web/app/api/auth/[...all]/route.ts
+    ;;      Mounts BetterAuth handler
+    ;; 5. Environment: AUTH_SECRET, RESEND_API_KEY (or dev stub)
+    (create-files
+      ["apps/web/lib/auth.ts"
+       "apps/web/lib/auth-client.ts"
+       "apps/web/app/api/auth/[...all]/route.ts"]))
+
+  (task :id "P3.2" :name "Create auth pages"
+    ;; apps/web/app/auth/login/page.tsx
+    ;;   Email + password form. "Sign in with magic link" option.
+    ;;   Styled with Anio Regalia brand. Playfair heading. Warm ivory bg.
+    ;;   No sidebar. Standalone centered card. Logo above.
+    ;;
+    ;; apps/web/app/auth/register/page.tsx
+    ;;   Staff registration (invite-only in production — open for MVP dev).
+    ;;   Fields: name, email, password, role (select from StaffRole).
+    ;;
+    ;; apps/web/app/auth/verify/page.tsx
+    ;;   Magic link verification callback page.
+    ;;
+    ;; All auth pages: no sidebar, standalone, brand-consistent.
+    (create-files
+      ["apps/web/app/auth/login/page.tsx"
+       "apps/web/app/auth/register/page.tsx"
+       "apps/web/app/auth/verify/page.tsx"]))
+
+  (task :id "P3.3" :name "Role-based authorization middleware"
+    ;; apps/web/middleware.ts:
+    ;;   Reads BetterAuth session from cookie.
+    ;;   Unauthenticated → redirect /auth/login
+    ;;   Client role → only /client-portal/* routes allowed
+    ;;   Staff roles → full app, cannot access /client-portal
+    ;;
+    ;; Authorization matrix per Engineering standards.md:
+    ;;   Owner       — full system access
+    ;;   Admin       — operational management
+    ;;   Tailor      — production, measurements, projects
+    ;;   Reception   — calendar, consultations, client management
+    ;;   Accountant  — payments, documents
+    ;;   Client      — client portal only
+    ;;
+    ;; ENFORCE: authorization on Convex mutations too (P3.4).
+    ;; Middleware is the first gate. Convex is the enforcer.
+    (create-file "apps/web/middleware.ts"))
+
+  (task :id "P3.4" :name "Enforce auth in Convex mutations"
+    ;; Every Convex mutation and query:
+    ;;   1. Gets current user from BetterAuth session (passed via header or token)
+    ;;   2. Validates role has permission for this action
+    ;;   3. Rejects with ConvexError if unauthorized
+    ;;
+    ;; Create convex/lib/auth.ts — helper:
+    ;;   getCurrentUser(ctx) → { id, name, email, role } or throws
+    ;;   requireRole(ctx, allowedRoles[]) → user or throws
+    ;;
+    ;; ADR-020: Business logic lives on the backend. Never trust the client.
+    (create-file "convex/lib/auth.ts"))
+
+  (task :id "P3.5" :name "Create auth context provider for React"
+    ;; apps/web/components/AuthProvider.tsx:
+    ;;   Wraps BetterAuth client hooks.
+    ;;   Provides: useSession(), useUser(), signIn(), signOut()
+    ;;   Integrate into apps/web/app/layout.tsx providers.
+    ;;
+    ;; Update AppSidebar: show logged-in user name + role in footer.
+    ;; Update top nav: show user avatar from session, "Sign out" in dropdown.
+    (create-file "apps/web/components/AuthProvider.tsx"))
+
+  (task :id "P3.6" :name "Verify auth flow"
+    ;; 1. Visit / unauthenticated → redirects to /auth/login
+    ;; 2. Register a staff account → redirects to /
+    ;; 3. Sign out → back to /auth/login
+    ;; 4. Sign in with wrong password → error message
+    ;; 5. Client role → can only access /client-portal
+    ;; 6. Owner role → can access everything
+    ;; 7. Convex mutation without session → ConvexError("Unauthenticated")
+    (verify
+      ["auth redirect works"
+       "registration creates user"
+       "role-based access enforced"
+       "convex mutations reject unauthenticated"]))
+)
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; PHASE 4 — HONO API LAYER
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(phase :id "P4" :name "Hono API Layer"
+
+  ;; Ref: Technical architecture.md §API §Hono
+  ;; Ref: ADR-004 (Hono for external endpoints, webhooks, integrations)
+  ;;
+  ;; Convex remains the PRIMARY backend. Hono provides:
+  ;;   - Public endpoints (no Convex auth needed)
+  ;;   - Webhook receivers (payment providers, email, calendar sync)
+  ;;   - Future third-party integrations
+  ;;   - Media upload orchestration (R2 presigned URLs)
+  ;;
+  ;; API routes do NOT include organizational prefixes.
+  ;; Prefer: GET /projects   NOT: GET /organizations/:id/projects
+  ;; There is only one atelier.
+
+  (task :id "P4.1" :name "Set up Hono in Next.js API routes"
+    ;; apps/web/app/api/[[...route]]/route.ts:
+    ;;   Mount Hono app as Next.js route handler.
+    ;;   All /api/* requests handled by Hono.
+    ;;   BetterAuth routes (/api/auth/*) take precedence (already set up in P3).
+    ;;
+    ;; Structure:
+    ;;   apps/web/lib/hono/app.ts       — Hono app instance
+    ;;   apps/web/lib/hono/middleware/   — auth, cors, rate-limit stubs
+    ;;   apps/web/lib/hono/routes/       — one file per domain
+    ;;
+    ;; Install: pnpm add hono (in apps/web)
+    (create-files
+      ["apps/web/lib/hono/app.ts"
+       "apps/web/lib/hono/middleware/auth.ts"
+       "apps/web/app/api/[[...route]]/route.ts"]))
+
+  (task :id "P4.2" :name "Create Hono route files"
+    ;; apps/web/lib/hono/routes/media.ts
+    ;;   POST /api/media/upload   — generates R2 presigned PUT URL
+    ;;   GET  /api/media/:key     — generates R2 signed GET URL (short TTL)
+    ;;   DELETE /api/media/:key   — deletes from R2
+    ;;
+    ;; apps/web/lib/hono/routes/webhooks.ts
+    ;;   POST /api/webhooks/payments — placeholder for payment provider callbacks
+    ;;   POST /api/webhooks/email    — placeholder for email delivery status
+    ;;
+    ;; apps/web/lib/hono/routes/public.ts
+    ;;   GET /api/health              — { status: "ok", timestamp }
+    ;;   GET /api/projects/:slug/status — public commission status check
+    ;;                                    (client portal alternative access)
+    ;;
+    ;; All endpoints authenticate via BetterAuth session or API key header.
+    ;; Webhook endpoints verify signatures.
+    (create-files
+      ["apps/web/lib/hono/routes/media.ts"
+       "apps/web/lib/hono/routes/webhooks.ts"
+       "apps/web/lib/hono/routes/public.ts"]))
+
+  (task :id "P4.3" :name "R2 integration (Cloudflare)"
+    ;; Ref: Technical architecture.md §Cloudflare R2
+    ;; Ref: ADR-005 (R2 for media)
+    ;;
+    ;; apps/web/lib/r2.ts:
+    ;;   Configure @aws-sdk/client-s3 with R2 endpoint.
+    ;;   Environment: R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY,
+    ;;                R2_BUCKET_NAME
+    ;;   Functions:
+    ;;     getUploadUrl(key, contentType) → presigned PUT URL
+    ;;     getDownloadUrl(key)            → presigned GET URL (15min TTL)
+    ;;     deleteObject(key)              → void
+    ;;
+    ;; Media metadata stored in Convex (table: media):
+    ;;   { key, projectId, type, mimeType, size, uploadedBy, uploadedAt, archived?, retainUntil? }
+    ;;
+    ;; File type validation per Appendix §File Standards:
+    ;;   Images: JPG, PNG, WebP
+    ;;   Videos: MP4, max 30 seconds
+    ;;   Voice Notes: WebM, MP3
+    (create-file "apps/web/lib/r2.ts"))
+
+  (task :id "P4.4" :name "Verify Hono API"
+    ;; GET /api/health → { status: "ok" }
+    ;; POST /api/media/upload (authenticated) → returns presigned URL
+    ;; POST /api/media/upload (unauthenticated) → 401
+    ;; Webhook endpoints return 200 on valid signature, 401 on invalid
+    (verify ["curl /api/health" "auth enforcement" "webhook stubs"]))
+)
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; PHASE 5 — CONNECT FRONTEND TO BACKEND
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(phase :id "P5" :name "Wire Frontend to Convex"
+
+  ;; Ref: Technical architecture.md §Real-time
+  ;; Ref: ADR-003 (Convex — realtime by default)
+  ;; Ref: Engineering standards.md §State Management (Convex + React State only)
+  ;;
+  ;; Replace ALL mock useState arrays with Convex useQuery / useMutation.
+  ;; Convex useQuery is reactive — no polling, no manual refresh needed.
+
+  (task :id "P5.1" :name "Set up Convex React provider"
+    ;; apps/web/app/layout.tsx: wrap children in ConvexProvider.
+    ;; Configure with NEXT_PUBLIC_CONVEX_URL from env.
+    ;; Must wrap alongside AuthProvider (from P3.5).
+    ;; Order: ConvexProvider > AuthProvider > ThemeProvider > children
+    (edit-file "apps/web/app/layout.tsx"))
+
+  (task :id "P5.2" :name "Wire dashboard (app/page.tsx)"
+    ;; Replace INITIAL_PROJECTS mock with:
+    ;;   const projects = useQuery(api.projects.list)
+    ;; Replace handleCreate with:
+    ;;   const createProject = useMutation(api.projects.create)
+    ;; Replace MOCK_CLIENTS with:
+    ;;   const clients = useQuery(api.clients.list)
+    ;; Handle loading state: show skeleton cards while query resolves.
+    ;; Handle empty state: design system empty state component.
+    ;; Notification count: useQuery(api.notifications.listByRecipient) → count unread
+    (edit-file "apps/web/app/page.tsx"))
+
+  (task :id "P5.3" :name "Wire project detail (app/projects/[slug]/page.tsx)"
+    ;; Replace MOCK_PROJECTS with:
+    ;;   const project = useQuery(api.projects.getBySlug, { slug })
+    ;; Each panel component receives the project and uses its own queries:
+    ;;   OverviewPanel       → project data (already loaded)
+    ;;   ConsultationPanel   → useQuery(api.consultations.getByProject, { projectId })
+    ;;   DesignPanel         → useQuery(api.designs.getByProject, { projectId })
+    ;;   ParticipantList     → useQuery(api.participants.listByProject, { projectId })
+    ;;   MeasurementPanel    → useQuery(api.measurements.listByParticipant, { participantId })
+    ;;   QuotationPanel      → useQuery(api.quotations.getByProject, { projectId })
+    ;;   PaymentList         → useQuery(api.payments.listByProject, { projectId })
+    ;;   ProductionPanel     → useQuery(api.garments.listByProject, { projectId })
+    ;;   AppointmentList     → useQuery(api.appointments.listByProject, { projectId })
+    ;;   TimelinePanel       → useQuery(api.timeline.listByProject, { projectId })
+    ;;   StoryPanel          → useQuery(api.stories.listActive, { projectId })
+    ;;   DocumentPanel       → useQuery(api.documents.listByProject, { projectId })
+    (edit-files ["apps/web/app/projects/[slug]/page.tsx"
+                 "apps/web/components/project/*.tsx"]))
+
+  (task :id "P5.4" :name "Wire client pages"
+    ;; apps/web/app/clients/page.tsx → useQuery(api.clients.list)
+    ;; apps/web/app/clients/[id]/page.tsx → useQuery(api.clients.getById, { id })
+    ;; apps/web/app/client-portal/page.tsx → client's own project data
+    (edit-files
+      ["apps/web/app/clients/page.tsx"
+       "apps/web/app/clients/[id]/page.tsx"
+       "apps/web/app/client-portal/page.tsx"]))
+
+  (task :id "P5.5" :name "Wire remaining pages"
+    ;; Calendar:      useQuery(api.appointments.listUpcoming)
+    ;; Production:    useQuery(api.garments.listInProduction) — custom query
+    ;; Appointments:  useQuery(api.appointments.listAll)
+    ;; Payments:      useQuery(api.payments.listAll) — paginated
+    ;; Documents:     useQuery(api.documents.listAll)
+    ;; Notifications: useQuery(api.notifications.listByRecipient)
+    (edit-files
+      ["apps/web/app/calendar/page.tsx"
+       "apps/web/app/production/page.tsx"
+       "apps/web/app/appointments/page.tsx"
+       "apps/web/app/payments/page.tsx"
+       "apps/web/app/documents/page.tsx"
+       "apps/web/app/notifications/page.tsx"]))
+
+  (task :id "P5.6" :name "Verify real-time updates"
+    ;; Test: open browser, create project in Convex dashboard → appears live.
+    ;; Test: update project status → dashboard reflects immediately.
+    ;; Test: record payment → payment list updates without refresh.
+    ;; No polling anywhere. Convex reactivity handles everything.
+    (verify
+      ["realtime project creation"
+       "realtime status updates"
+       "realtime payment recording"
+       "no polling or manual refresh code exists"]))
+)
+
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; CROSS-CUTTING CONSTRAINTS
+;; Apply at every phase, every task, every file.
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(constraints
+
+  (constraint :id "C1" :name "Read the relevant doc section before writing code"
+    ;; Every task cites a Ref. Read that section first.
+    ;; Docs in /Users/paulkinyatti/Documents/my-vault/projects/AnioRegalia/
+    ;; are more authoritative than this file or training data.
+    )
+
+  (constraint :id "C2" :name "Read Next.js bundled docs before App Router code"
+    ;; AGENTS.md: "Read the relevant guide in node_modules/next/dist/docs/"
+    )
+
+  (constraint :id "C3" :name "No Organization entity. No organizationId. Anywhere."
+    ;; ADR-025 is absolute. Authentication identifies a person, not a business.
+    )
+
+  (constraint :id "C4" :name "Domain terminology is canonical — Project language.md"
+    ;; NEVER: canvas, ticket, organization, workspace, tenant, customer
+    ;; USE: project, commission, client, consultation, garment, participant, atelier
+    )
+
+  (constraint :id "C5" :name "Measurements are always append-only"
+    ;; ADR-009. No updateMeasurement mutation. Ever.
+    )
+
+  (constraint :id "C6" :name "Every significant action creates a timeline event"
+    ;; ADR-010. Past-tense type strings. Append-only.
+    )
+
+  (constraint :id "C7" :name "Never store generated PDFs"
+    ;; ADR-007 / ADR-008. Generate on demand, never persist.
+    )
+
+  (constraint :id "C8" :name "Payments are immutable records"
+    ;; No updatePayment or deletePayment. Corrections are new records.
+    )
+
+  (constraint :id "C9" :name "Currency is always stored as integers"
+    ;; Appendix §Currency. Display layer formats. Default: KES.
+    )
+
+  (constraint :id "C10" :name "All timestamps: UTC, ISO-8601"
+    ;; Store UTC. Display Nairobi timezone.
+    )
+
+  (constraint :id "C11" :name "TypeScript strict mode — no any"
+    ;; Engineering standards.md §TypeScript.
+    )
+
+  (constraint :id "C12" :name "Business logic lives on the backend"
+    ;; ADR-020. React displays. Convex enforces.
+    )
+
+  (constraint :id "C13" :name "Mobile first at all times"
+    ;; ADR-014. Start at 375px, scale up.
+    )
+
+  (constraint :id "C14" :name "Luxury through simplicity"
+    ;; ADR-015. Whitespace, typography, restraint. Not SaaS dashboards.
+    )
+
+  (constraint :id "C15" :name "Brand tokens are permanent"
+    ;; ADR-026. Deep Burgundy, Antique Gold, Warm Ivory. No theme switcher.
+    )
+
+  (constraint :id "C16" :name "Naming conventions"
+    ;; Files: kebab-case. Components: PascalCase. Variables: camelCase.
+    ;; Types: PascalCase. Constants: UPPER_SNAKE_CASE. DB fields: camelCase.
+    )
+
+  (constraint :id "C17" :name "Soft deletes only"
+    ;; Never hard delete projects. Measurements and payments have no delete at all.
+    )
+
+  (constraint :id "C18" :name "Sidebar is dark burgundy — brand element"
+    ;; Product.md §Visual Direction. Not a UI preference.
+    )
+
+  (constraint :id "C19" :name "BetterAuth for authentication"
+    ;; NOT Convex Auth. BetterAuth with Convex adapter.
+    ;; Sessions in cookies. RBAC enforced server-side.
+    )
+
+  (constraint :id "C20" :name "Hono is for external/public APIs only"
+    ;; Primary data access: Convex useQuery/useMutation.
+    ;; Hono: webhooks, R2 orchestration, public status endpoints.
+    )
+)
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; EXECUTION ORDER
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(execution-order
+
+  :sequential ["P1" "P2" "P3" "P4" "P5"]
+
+  ;; P1 (Monorepo)  MUST complete first — everything lives in the new structure.
+  ;; P2 (Convex)    requires the monorepo scaffold to be in place.
+  ;; P3 (Auth)      requires Convex to be initialized (stores users/sessions).
+  ;; P4 (Hono)      requires auth (middleware depends on BetterAuth session).
+  ;; P5 (Frontend)  requires all backend services running.
+  ;;
+  ;; Within each phase, tasks are sequential (numbered order).
+  ;;
+  ;; FASTEST PATH TO WORKING PRODUCT:
+  ;;   P1.1 → P1.2 → P1.4 (skip P1.3 package extraction initially — do after P5)
+  ;;   → P2.1 → P2.2 → P2.3 → P2.5
+  ;;   → P3.1 → P3.2 → P3.3 → P3.4 → P3.6
+  ;;   → P4.1 → P4.2 → P4.4
+  ;;   → P5.1 → P5.2 → P5.3 → P5.6
+  ;;
+  ;; Then circle back: P1.3 (extract packages), P4.3 (R2), P5.4, P5.5.
+
+  :note
+  "Ship the core loop first:
+   Auth → Create Project → View Project → Record Measurement → Track Production.
+   Everything else layers on top of that.
+   Ref: Evolution roadmap.md §Roadmap Principles: build vertically."
+)
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; VERIFICATION CHECKLIST
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(verification
+
+  (after-P1
+    "pnpm build — all workspaces compile"
+    "pnpm typecheck — no errors"
+    "pnpm dev — apps/web starts and renders at localhost:3000"
+    "Turborepo pipeline works: pnpm build runs apps/web + packages/*"
+    "No broken imports")
+
+  (after-P2
+    "npx convex dev — schema deploys cleanly"
+    "All mutation/query files type-check"
+    "No table has organizationId, tenantId, or workspaceId"
+    "No updateMeasurement mutation exists"
+    "No updatePayment mutation exists"
+    "Every status-change mutation calls timeline.create"
+    "Test: insert project via Convex dashboard → data visible")
+
+  (after-P3
+    "Visit / unauthenticated → redirects to /auth/login"
+    "Register staff account → redirects to /"
+    "Sign out → back to /auth/login"
+    "Client role → only /client-portal accessible"
+    "Owner role → full access"
+    "Convex mutation without auth → ConvexError('Unauthenticated')"
+    "BetterAuth session persists across page refresh")
+
+  (after-P4
+    "GET /api/health → { status: 'ok' }"
+    "POST /api/media/upload (authed) → presigned URL returned"
+    "POST /api/media/upload (unauthed) → 401"
+    "Webhook stubs return 200 on valid request"
+    "No Hono route duplicates a Convex query — Hono is external only")
+
+  (after-P5
+    "Dashboard shows real data from Convex (not mock arrays)"
+    "Creating a project persists to Convex and appears in list"
+    "Real-time: update in Convex dashboard → browser reflects immediately"
+    "No useState mock arrays remain in any page component"
+    "No polling or setInterval anywhere in the codebase"
+    "All pages handle loading state (skeletons)"
+    "All pages handle empty state (design system compliant)")
+
+  (after-all-phases
+    "Full auth flow works end to end"
+    "Create → View → Update → Archive project lifecycle works"
+    "Measurements append-only — no edit button anywhere"
+    "Payments immutable — no edit/delete anywhere"
+    "Timeline is read-only — no add/edit/delete in UI"
+    "PDFs generate on demand — no stored PDFs in Convex or R2"
+    "Mobile: all pages usable at 375px"
+    "Brand: burgundy sidebar, gold accents, ivory canvas, Playfair headings"
+    "No 'canvas', 'organization', 'tenant', 'workspace' string anywhere")
+)
+
+;; ═══════════════════════════════════════════════════════════════════════════
+;; OUT OF SCOPE — do not implement, do not design for
+;; ═══════════════════════════════════════════════════════════════════════════
+
+(out-of-scope
+  "AI Assistant — Version 4"
+  "Google / Apple OAuth — post-MVP"
+  "WhatsApp / SMS notifications — Version 2"
+  "Online payments / payment links — Version 2"
+  "Native mobile apps — future"
+  "White label / multi-tenant SaaS — future project (not this one)"
+  "Inventory management — non-goal"
+  "ERP / Accounting / POS — non-goal"
+  "CAD / pattern-making — non-goal"
+  "Public API / Webhooks for third parties — Version 5"
+  "Multi-location / branch management — Version 6"
+  "Analytics dashboards — Version 3"
+  "Theme switcher — permanently excluded (ADR-026)"
+  "Organization entity — permanently excluded (ADR-025)"
+)
+
+;; END UPGRADE.lips v3.0
