@@ -3,7 +3,7 @@
 import React from "react"
 import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Calendar, Users } from "@hugeicons/core-free-icons"
+import { Users } from "@hugeicons/core-free-icons"
 import type { Doc } from "@convex/_generated/dataModel"
 import type { ProjectStatus, ProjectType } from "@/lib/types"
 
@@ -65,11 +65,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   viewMode,
   onClick,
 }) => {
-  const openedDate = new Date(project.createdAt).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  })
 
   // ── List view ───────────────────────────────────────────────────────────
   if (viewMode === "list") {
@@ -117,7 +112,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <button
       onClick={onClick}
-      className="group flex w-full flex-col overflow-hidden rounded-xs bg-card text-left transition-shadow"
+      className="group flex w-full flex-col overflow-hidden rounded-xs bg-card text-left transition-colors hover:bg-secondary/60"
       style={{ minHeight: "360px" }}
     >
       {/* ── Hero Image — 170px, full width, object-cover ─────────────── */}
@@ -161,12 +156,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           </p>
         )}
 
-        {/* ── Footer — delivery date + member count ────────────────── */}
+        {/* ── Footer — client ────────────────────────────────────── */}
         <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-[12px] text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <HugeiconsIcon icon={Calendar} className="size-4" />
-            <span>Opened {openedDate}</span>
-          </div>
           <div className="flex min-w-0 items-center gap-1.5">
             <HugeiconsIcon icon={Users} className="size-4 shrink-0" />
             <span className="truncate">{primaryClientName}</span>

@@ -125,21 +125,21 @@ export function DocumentPanel({
 <html><head><meta charset="utf-8" /><title>${docLabel(doc.type)} — ${project.title}</title>
 <style>
   @page { margin: 24mm; }
-  body { font-family: Georgia, "Times New Roman", serif; color: #1B1A17; background: #FFFFFF; }
-  .bar { background: #4B1E2A; color: #fff; padding: 22px 26px; }
+  body { font-family: Georgia, "Times New Roman", serif; color: hsl(0 0% 9%); background: #FFFFFF; }
+  .bar { background: hsl(345 60% 28%); color: #fff; padding: 22px 26px; }
   .bar h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
-  .bar p { margin: 4px 0 0; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: #C8A46B; }
-  .rule { height: 2px; background: #C8A46B; }
+  .bar p { margin: 4px 0 0; font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: hsl(45 93% 58%); }
+  .rule { height: 2px; background: hsl(45 93% 58%); }
   .body { padding: 26px; }
   .meta { display: flex; gap: 40px; margin-bottom: 26px; font-size: 13px; }
-  .meta div p:first-child { margin: 0 0 3px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8C857D; }
+  .meta div p:first-child { margin: 0 0 3px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: hsl(0 0% 45%); }
   .meta div p:last-child { margin: 0; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: left; border-bottom: 1px solid #E7E2DB; padding: 8px 0; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: #8C857D; }
-  td { border-bottom: 1px solid #F0EDE7; padding: 10px 0; }
+  th { text-align: left; border-bottom: 1px solid hsl(0 0% 90%); padding: 8px 0; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: hsl(0 0% 45%); }
+  td { border-bottom: 1px solid hsl(0 0% 94%); padding: 10px 0; }
   .r { text-align: right; }
   .tot { font-weight: 700; font-size: 15px; }
-  footer { margin-top: 34px; border-top: 1px solid #E7E2DB; padding-top: 12px; font-size: 11px; color: #8C857D; display: flex; justify-content: space-between; }
+  footer { margin-top: 34px; border-top: 1px solid hsl(0 0% 90%); padding-top: 12px; font-size: 11px; color: hsl(0 0% 45%); display: flex; justify-content: space-between; }
 </style></head>
 <body>
   <div class="bar">
@@ -164,7 +164,7 @@ export function DocumentPanel({
           .join("")}
         <tr><td colspan="3" class="r tot">Total</td><td class="r tot">${money(total)}</td></tr>
         </tbody></table>`
-        : `<p style="font-size:13px;color:#5C5852">This record holds no line items.</p>`
+        : `<p style="font-size:13px;color:hsl(0 0% 34%)">This record holds no line items.</p>`
     }
     <footer><span>Anio Regalia</span><span>Generated ${new Date().toLocaleString("en-GB")}</span></footer>
   </div>
@@ -241,10 +241,10 @@ export function DocumentPanel({
                     {docLabel(doc.type)}
                   </Badge>
                   <div>
-                    <p className="text-[14px] font-medium" style={{ color: T.ink }}>
+                    <p className="text-[14px] font-medium text-foreground">
                       {`Version ${doc.version}`}
                     </p>
-                    <p className="text-[12px]" style={{ color: T.muted }}>
+                    <p className="text-[12px] text-muted-foreground">
                       {fmtDateTime(doc.createdAt)}
                     </p>
                   </div>
@@ -259,7 +259,7 @@ export function DocumentPanel({
         </div>
       )}
 
-      <p className="text-center text-[12px]" style={{ color: T.muted }}>
+      <p className="text-center text-[12px] text-muted-foreground">
         PDFs are generated from structured data on demand and are never stored.
       </p>
     </div>

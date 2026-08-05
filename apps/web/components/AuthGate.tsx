@@ -60,15 +60,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
 function FullPageSpinner({ label }: { label: string }) {
   return (
-    <div
-      className="flex min-h-screen flex-col items-center justify-center gap-4"
-      style={{ background: "#F6F2EC" }}
-    >
-      <div
-        className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent"
-        style={{ borderColor: "#E7E2DB", borderTopColor: "#4B1E2A" }}
-      />
-      <p className="text-[14px]" style={{ color: "#8C857D" }}>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-primary" />
+      <p className="text-[14px] text-muted-foreground">
         {label}
       </p>
     </div>
