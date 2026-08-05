@@ -50,12 +50,6 @@ const DEFAULT_CLIENT_TYPE: Record<ProjectType, ClientType> = {
   Alteration: "Individual",
 }
 
-const inputStyle: React.CSSProperties = {
-  background: "#F6F2EC",
-  borderColor: "#E0DAD0",
-  color: "#1B1A17",
-}
-
 export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   isOpen,
   onClose,
@@ -133,7 +127,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
 
     setSaving(true)
     try {
-      // Resolve the client to a real Convex Id
       let clientId: Id<"clients">
 
       if (effectiveMode === "new") {
@@ -182,37 +175,26 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
       onClick={handleClose}
     >
       <div
-        className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-3xl border p-8"
-        style={{
-          background: "#FFFFFF",
-          borderColor: "#E7E2DB",
-          boxShadow: "0 16px 40px rgba(20,20,19,.10)",
-        }}
+        className="max-h-[90vh] w-full max-w-[520px] overflow-y-auto rounded-xs border border-border bg-card p-8 shadow-[0_16px_40px_rgba(20,20,19,.10)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <p
-              className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em]"
-              style={{ color: "#C8A46B" }}
-            >
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
               New Commission
             </p>
-            <h2
-              className="font-heading text-[28px] font-semibold leading-tight"
-              style={{ color: "#1B1A17" }}
-            >
+            <h2 className="font-heading text-[28px] font-semibold leading-tight text-foreground">
               Begin a project
             </h2>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="flex size-8 items-center justify-center rounded-full transition-colors hover:bg-[#F3EFEA]"
+            className="flex size-8 items-center justify-center rounded-full transition-colors hover:bg-muted"
             aria-label="Close"
           >
-            <HugeiconsIcon icon={Cancel01Icon} className="size-4" style={{ color: "#8C857D" }} />
+            <HugeiconsIcon icon={Cancel01Icon} className="size-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -229,10 +211,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           {/* Client — existing vs new */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <label
-                className="text-[12px] font-semibold uppercase tracking-[0.08em]"
-                style={{ color: "#5C5852" }}
-              >
+              <label className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                 Client
               </label>
               {hasClients && (
@@ -242,12 +221,11 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                       key={m}
                       type="button"
                       onClick={() => setMode(m)}
-                      className="rounded-full px-3 py-1 text-[12px] font-medium transition-colors"
-                      style={
+                      className={`rounded-full px-3 py-1 text-[12px] font-medium transition-colors ${
                         effectiveMode === m
-                          ? { background: "#4B1E2A", color: "#FFFFFF" }
-                          : { background: "#F3EFEA", color: "#8C857D" }
-                      }
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted text-muted-foreground"
+                      }`}
                     >
                       {m === "existing" ? "Existing" : "New"}
                     </button>
@@ -260,8 +238,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               <select
                 value={selectedClientId}
                 onChange={(e) => setSelectedClientId(e.target.value)}
-                className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-                style={inputStyle}
+                className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                 required
               >
                 <option value="">Select a client...</option>
@@ -274,7 +251,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             ) : (
               <div className="flex flex-col gap-3">
                 {!hasClients && (
-                  <p className="text-[12px]" style={{ color: "#8C857D" }}>
+                  <p className="text-[12px] text-muted-foreground">
                     No clients yet — this will create your first one.
                   </p>
                 )}
@@ -283,15 +260,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                   value={newClientName}
                   onChange={(e) => setNewClientName(e.target.value)}
                   placeholder="Client name or company"
-                  className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-                  style={inputStyle}
+                  className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                   required
                 />
                 <select
                   value={newClientType}
                   onChange={(e) => setNewClientType(e.target.value as ClientType)}
-                  className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-                  style={inputStyle}
+                  className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                 >
                   {CLIENT_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>
@@ -305,16 +280,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                     value={newClientEmail}
                     onChange={(e) => setNewClientEmail(e.target.value)}
                     placeholder="Email (optional)"
-                    className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-                    style={inputStyle}
+                    className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                   />
                   <input
                     type="tel"
                     value={newClientPhone}
                     onChange={(e) => setNewClientPhone(e.target.value)}
                     placeholder="Phone (optional)"
-                    className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-                    style={inputStyle}
+                    className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                   />
                 </div>
               </div>
@@ -325,8 +298,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           <div>
             <label
               htmlFor="projectType"
-              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-              style={{ color: "#5C5852" }}
+              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
             >
               Commission Type
             </label>
@@ -334,8 +306,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               id="projectType"
               value={projectType}
               onChange={(e) => handleTypeChange(e.target.value as ProjectType)}
-              className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-              style={inputStyle}
+              className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
               required
             >
               {PROJECT_TYPES.map((t) => (
@@ -350,8 +321,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           <div>
             <label
               htmlFor="projectTitle"
-              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-              style={{ color: "#5C5852" }}
+              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
             >
               Title
             </label>
@@ -364,11 +334,10 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                 setTitle(e.target.value)
               }}
               placeholder="e.g. Wedding - James & Diana"
-              className="h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none focus:border-[#C8A46B]"
-              style={inputStyle}
+              className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
               required
             />
-            <p className="mt-1.5 text-[12px]" style={{ color: "#8C857D" }}>
+            <p className="mt-1.5 text-[12px] text-muted-foreground">
               Auto-filled from type and client — edit if needed.
             </p>
           </div>
@@ -377,10 +346,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
           <div>
             <label
               htmlFor="notes"
-              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-              style={{ color: "#5C5852" }}
+              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
             >
-              Initial Notes <span style={{ color: "#8C857D" }}>(optional)</span>
+              Initial Notes <span className="text-muted-foreground">(optional)</span>
             </label>
             <textarea
               id="notes"
@@ -388,8 +356,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Requirements, context, anything worth recording..."
               rows={3}
-              className="w-full resize-none rounded-xl border px-4 py-3 text-[14px] outline-none focus:border-[#C8A46B]"
-              style={inputStyle}
+              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-[14px] text-foreground outline-none focus:border-ring"
             />
           </div>
 
@@ -398,16 +365,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="h-[44px] flex-1 rounded-full border text-[14px] font-medium transition-colors hover:bg-[#F3EFEA]"
-              style={{ borderColor: "#D9D2C7", color: "#1B1A17", background: "transparent" }}
+              className="h-[44px] flex-1 rounded-full border border-border bg-transparent text-[14px] font-medium text-foreground transition-colors hover:bg-muted"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="h-[44px] flex-1 rounded-full text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              style={{ background: "#4B1E2A" }}
+              className="h-[44px] flex-1 rounded-full bg-primary text-[14px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {saving ? "Creating..." : "Create Commission"}
             </button>

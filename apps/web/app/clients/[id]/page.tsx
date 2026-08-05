@@ -85,10 +85,10 @@ export default function ClientDetailPage({
   if (client === undefined) {
     return (
       <SidebarProvider>
-        <div className="flex min-h-screen w-full" style={{ background: "#F6F2EC" }}>
+        <div className="flex min-h-screen w-full bg-background">
           <AppSidebar />
-          <div className="flex flex-1 items-center justify-center">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" style={{ borderColor: "#E7E2DB", borderTopColor: "#4B1E2A" }} />
+          <div className="flex flex-1 items-center justify-center m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-primary" />
           </div>
         </div>
       </SidebarProvider>
@@ -101,7 +101,7 @@ export default function ClientDetailPage({
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <AppSidebar />
-          <div className="flex flex-1 items-center justify-center bg-background">
+          <div className="flex flex-1 items-center justify-center m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
             <p className="text-muted-foreground">Client not found.</p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function ClientDetailPage({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex-1 bg-background">
+        <div className="flex-1 m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
           <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-sm">
             <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center gap-4">

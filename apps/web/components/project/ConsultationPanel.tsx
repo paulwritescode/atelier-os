@@ -114,7 +114,7 @@ export function ConsultationPanel({ projectId, staffId, isLocked }: PanelProps) 
               required
               disabled={disabled}
               placeholder="What does the client need?"
-              className="w-full resize-none rounded-2xl border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
+              className="w-full resize-none rounded-xs border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
               style={inputStyle}
             />
           </div>
@@ -127,7 +127,7 @@ export function ConsultationPanel({ projectId, staffId, isLocked }: PanelProps) 
               rows={3}
               disabled={disabled}
               placeholder="Silhouette, inspirations, direction…"
-              className="w-full resize-none rounded-2xl border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
+              className="w-full resize-none rounded-xs border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
               style={inputStyle}
             />
           </div>

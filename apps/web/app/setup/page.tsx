@@ -37,42 +37,32 @@ export default function SetupPage() {
   // After PIN is generated, show it to the owner
   if (generatedPin) {
     return (
-      <div
-        className="flex min-h-screen items-center justify-center px-6"
-        style={{ background: "#F6F2EC" }}
-      >
+      <div className="flex min-h-screen items-center justify-center bg-background px-6">
         <div className="w-full max-w-[440px]">
           <div className="mb-10 flex flex-col items-center">
             <Image src="/logo.png" alt="Anio Regalia" width={64} height={64} className="mb-4" />
-            <h1 className="font-heading text-[28px] font-semibold" style={{ color: "#1B1A17" }}>
+            <h1 className="font-heading text-[28px] font-semibold text-foreground">
               You&apos;re all set
             </h1>
-            <p className="mt-1 text-[14px]" style={{ color: "#8C857D" }}>
+            <p className="mt-1 text-[14px] text-muted-foreground">
               Save your PIN somewhere safe. You&apos;ll need it to sign in.
             </p>
           </div>
 
-          <div
-            className="rounded-3xl border p-8 text-center"
-            style={{ background: "#FFFFFF", borderColor: "#E7E2DB", boxShadow: "0 2px 8px rgba(20,20,19,0.06)" }}
-          >
-            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C8A46B" }}>
+          <div className="rounded-xs border border-border bg-card p-8 text-center shadow-sm">
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
               Your PIN
             </p>
-            <p
-              className="mb-6 font-mono text-[40px] font-semibold tracking-[0.2em]"
-              style={{ color: "#4B1E2A" }}
-            >
+            <p className="mb-6 font-mono text-[40px] font-semibold tracking-[0.2em] text-primary">
               {generatedPin}
             </p>
-            <p className="mb-8 text-[13px]" style={{ color: "#8C857D" }}>
+            <p className="mb-8 text-[13px] text-muted-foreground">
               This PIN is shown only once. You can change it later from Settings.
             </p>
 
             <button
               onClick={() => router.push("/")}
-              className="flex h-[44px] w-full items-center justify-center rounded-full text-[14px] font-medium text-white transition-opacity hover:opacity-90"
-              style={{ background: "#4B1E2A" }}
+              className="flex h-[44px] w-full items-center justify-center rounded-full bg-primary text-[14px] font-medium text-primary-foreground transition-opacity hover:opacity-90"
             >
               Enter the Atelier
             </button>
@@ -84,28 +74,24 @@ export default function SetupPage() {
 
   // Setup form
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-6"
-      style={{ background: "#F6F2EC" }}
-    >
+    <div className="flex min-h-screen items-center justify-center bg-background px-6">
       <div className="w-full max-w-[400px]">
         <div className="mb-10 flex flex-col items-center">
           <Image src="/logo.png" alt="Anio Regalia" width={64} height={64} className="mb-4" />
-          <h1 className="font-heading text-[28px] font-semibold" style={{ color: "#1B1A17" }}>
+          <h1 className="font-heading text-[28px] font-semibold text-foreground">
             Welcome to Anio Regalia
           </h1>
-          <p className="mt-1 text-center text-[14px]" style={{ color: "#8C857D" }}>
+          <p className="mt-1 text-center text-[14px] text-muted-foreground">
             Let&apos;s set up your atelier. Enter your name to create the owner account.
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-3xl border p-8"
-          style={{ background: "#FFFFFF", borderColor: "#E7E2DB", boxShadow: "0 2px 8px rgba(20,20,19,0.06)" }}
+          className="rounded-xs border border-border bg-card p-8 shadow-sm"
         >
           {error && (
-            <div className="mb-6 rounded-xl px-4 py-3 text-[13px] font-medium" style={{ background: "#FDF2F2", color: "#8C2F2F" }}>
+            <div className="mb-6 rounded-xl bg-destructive/10 px-4 py-3 text-[13px] font-medium text-destructive">
               {error}
             </div>
           )}
@@ -113,8 +99,7 @@ export default function SetupPage() {
           <div className="mb-8">
             <label
               htmlFor="name"
-              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-              style={{ color: "#5C5852" }}
+              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
             >
               Your Name
             </label>
@@ -126,21 +111,19 @@ export default function SetupPage() {
               required
               autoComplete="name"
               placeholder="e.g. Paul Kinyatti"
-              className="h-[44px] w-full rounded-[22px] border px-4 text-[14px] outline-none transition-colors focus:border-[#C8A46B]"
-              style={{ background: "#F6F2EC", borderColor: "#E0DAD0", color: "#1B1A17" }}
+              className="h-[44px] w-full rounded-[22px] border border-input bg-background px-4 text-[14px] text-foreground outline-none transition-colors focus:border-ring"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="flex h-[44px] w-full items-center justify-center rounded-full text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-            style={{ background: "#4B1E2A" }}
+            className="flex h-[44px] w-full items-center justify-center rounded-full bg-primary text-[14px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {loading ? "Setting up..." : "Create Owner Account"}
           </button>
 
-          <p className="mt-4 text-center text-[12px]" style={{ color: "#8C857D" }}>
+          <p className="mt-4 text-center text-[12px] text-muted-foreground">
             A secure PIN will be generated for you automatically.
           </p>
         </form>

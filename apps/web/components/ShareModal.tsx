@@ -19,20 +19,6 @@ interface ShareModalProps {
   staffId: Id<"staff"> | undefined
 }
 
-const T = {
-  ink: "#1B1A17",
-  muted: "#8C857D",
-  body: "#5C5852",
-  gold: "#C8A46B",
-  burgundy: "#4B1E2A",
-  stone: "#E7E2DB",
-  white: "#FFFFFF",
-  ivory: "#F6F2EC",
-  softIvory: "#F3EFEA",
-  inputBorder: "#E0DAD0",
-  green: "#2E6B4E",
-}
-
 export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProps) {
   const setShareSettings = useMutation(api.projects.setShareSettings)
 
@@ -108,35 +94,24 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[460px] rounded-3xl border p-8"
-        style={{
-          background: T.white,
-          borderColor: T.stone,
-          boxShadow: "0 16px 40px rgba(20,20,19,.10)",
-        }}
+        className="w-full max-w-[460px] rounded-xs border border-border bg-card p-8 shadow-[0_16px_40px_rgba(20,20,19,.10)]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-6 flex items-start justify-between">
           <div>
-            <p
-              className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em]"
-              style={{ color: T.gold }}
-            >
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
               Client access
             </p>
-            <h2
-              className="font-heading text-[26px] font-semibold leading-tight"
-              style={{ color: T.ink }}
-            >
+            <h2 className="font-heading text-[26px] font-semibold leading-tight text-foreground">
               Share commission
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="flex size-8 items-center justify-center rounded-full transition-colors hover:bg-[#F3EFEA]"
+            className="flex size-8 items-center justify-center rounded-full transition-colors hover:bg-muted"
             aria-label="Close"
           >
-            <HugeiconsIcon icon={Cancel01Icon} className="size-4" style={{ color: T.muted }} />
+            <HugeiconsIcon icon={Cancel01Icon} className="size-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -150,10 +125,10 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
               className="mt-0.5 size-4"
             />
             <span>
-              <span className="block text-[14px] font-medium" style={{ color: T.ink }}>
+              <span className="block text-[14px] font-medium text-foreground">
                 Enable share link
               </span>
-              <span className="block text-[13px]" style={{ color: T.muted }}>
+              <span className="block text-[13px] text-muted-foreground">
                 Lets the client follow progress without signing in.
               </span>
             </span>
@@ -170,10 +145,10 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
                   className="mt-0.5 size-4"
                 />
                 <span>
-                  <span className="block text-[14px] font-medium" style={{ color: T.ink }}>
+                  <span className="block text-[14px] font-medium text-foreground">
                     Protect with a PIN
                   </span>
-                  <span className="block text-[13px]" style={{ color: T.muted }}>
+                  <span className="block text-[13px] text-muted-foreground">
                     Leave off to make the link fully public.
                   </span>
                 </span>
@@ -181,10 +156,7 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
 
               {usePin && (
                 <div>
-                  <label
-                    className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-                    style={{ color: T.body }}
-                  >
+                  <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                     Share PIN
                   </label>
                   <input
@@ -192,14 +164,9 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     placeholder="At least 4 characters"
-                    className="h-[44px] w-full rounded-full border px-4 font-mono text-[15px] tracking-[0.15em] outline-none focus:border-[#C8A46B]"
-                    style={{
-                      background: T.ivory,
-                      borderColor: T.inputBorder,
-                      color: T.ink,
-                    }}
+                    className="h-[44px] w-full rounded-full border border-border bg-background px-4 font-mono text-[15px] tracking-[0.15em] text-foreground outline-none focus:border-ring"
                   />
-                  <p className="mt-1.5 text-[12px]" style={{ color: T.muted }}>
+                  <p className="mt-1.5 text-[12px] text-muted-foreground">
                     Numbers, words or symbols — whatever is easiest to pass on.
                   </p>
                 </div>
@@ -207,28 +174,19 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
 
               {/* Link */}
               <div>
-                <label
-                  className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-                  style={{ color: T.body }}
-                >
+                <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
                   Link
                 </label>
-                <div
-                  className="flex items-center gap-2 rounded-full border px-4 py-2.5"
-                  style={{ background: T.softIvory, borderColor: T.inputBorder }}
-                >
-                  <span
-                    className="flex-1 truncate text-[13px]"
-                    style={{ color: T.body }}
-                  >
+                <div className="flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-2.5">
+                  <span className="flex-1 truncate text-[13px] text-muted-foreground">
                     {shareUrl}
                   </span>
                   <button
                     onClick={copyLink}
-                    className="flex size-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-white"
+                    className="flex size-7 shrink-0 items-center justify-center rounded-full transition-colors hover:bg-card"
                     aria-label="Copy link"
                   >
-                    <HugeiconsIcon icon={Copy01Icon} className="size-4" style={{ color: T.burgundy }} />
+                    <HugeiconsIcon icon={Copy01Icon} className="size-4 text-primary" />
                   </button>
                 </div>
               </div>
@@ -238,16 +196,14 @@ export function ShareModal({ isOpen, onClose, project, staffId }: ShareModalProp
           <div className="flex gap-3 pt-1">
             <button
               onClick={onClose}
-              className="h-[44px] flex-1 rounded-full border text-[14px] font-medium transition-colors hover:bg-[#F3EFEA]"
-              style={{ borderColor: "#D9D2C7", color: T.ink, background: "transparent" }}
+              className="h-[44px] flex-1 rounded-full border border-border bg-transparent text-[14px] font-medium text-foreground transition-colors hover:bg-muted"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="h-[44px] flex-1 rounded-full text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              style={{ background: T.burgundy }}
+              className="h-[44px] flex-1 rounded-full bg-primary text-[14px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save"}
             </button>

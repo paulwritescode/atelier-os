@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, { useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -19,6 +19,7 @@ import {
   ChevronDown,
 } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/ThemeToggle"
 import {
   Sidebar,
   SidebarContent,
@@ -30,6 +31,7 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar"
 
 type NavItem = {
@@ -61,6 +63,16 @@ const ACCOUNT_NAV: NavItem[] = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { setOpen, open } = useSidebar()
+
+  // Auto-collapse sidebar when on project detail page (2-sidebar pattern)
+  const isProjectDetailPage = /^\/projects\/[^/]+$/.test(pathname)
+
+  useEffect(() => {
+    if (isProjectDetailPage && open) {
+      setOpen(false)
+    }
+  }, [isProjectDetailPage, open, setOpen])
 
   const isActive = (url: string): boolean => {
     if (url === "/") return pathname === "/"
@@ -69,60 +81,46 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={cn(
-        // Deep burgundy background — v2 spec: sidebar is the identity of the atelier
-        "border-r-0",
-        "[&>div]:bg-[#4B1E2A]",
-      )}
+      variant="sidebar"
+      collapsible="icon"
     >
-      {/* ── Logo / wordmark ────────────────────────────────────────────── */}
-      <SidebarHeader
-        className="px-6 pt-8 pb-0"
-        style={{ background: "transparent" }}
-      >
-        <div className="flex flex-col gap-1">
-          <span
-            className="font-heading text-xl font-semibold leading-none tracking-tight"
-            style={{ color: "#FFFFFF" }}
-          >
-            Anio Regalia
-          </span>
-          <span
-            className="text-[11px] font-medium uppercase tracking-[0.08em]"
-            style={{ color: "rgba(255,255,255,0.45)" }}
-          >
-            Operating System
-          </span>
+      {/* ── Logo ───────────────────────────────────────────────────────── */}
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-glass-hover ring-1 ring-glass-border">
+            <span className="text-sm font-bold text-foreground">A</span>
+          </div>
+          {/* Text hides when sidebar is collapsed (icon mode) */}
+          <div className="flex flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
+            <span className="text-sm font-semibold leading-none tracking-tight text-foreground">
+              Anio Regalia
+            </span>
+            <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+              Operating System
+            </span>
+          </div>
         </div>
       </SidebarHeader>
 
       {/* ── Navigation ─────────────────────────────────────────────────── */}
-      <SidebarContent
-        className="px-3 pt-8"
-        style={{ background: "transparent" }}
-      >
-        {/* Primary — no group label, top-level */}
-        <SidebarGroup className="p-0 mb-12">
+      <SidebarContent className="px-3 pt-4">
+        {/* Primary */}
+        <SidebarGroup className="p-0 mb-6">
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1">
               {PRIMARY_NAV.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     render={<Link href={item.url} />}
                     isActive={isActive(item.url)}
                     className={cn(
-                      // Base — inactive
-                      "flex items-center gap-3 h-[44px] px-5 rounded-xl",
-                      "text-[15px] font-[450] leading-none",
-                      "transition-colors duration-150",
-                      // Inactive colours
-                      "text-[#E8E1D6]",
-                      "[&_svg]:text-[#8E8072] [&_svg]:size-5",
-                      // Hover
-                      "hover:bg-white/[0.04] hover:text-white [&:hover_svg]:text-[#C8A46B]",
-                      // Active — rgba(255,255,255,0.08) bg, white text, gold icon
-                      "data-[active=true]:bg-white/[0.08] data-[active=true]:text-white",
-                      "[&[data-active=true]_svg]:text-[#C8A46B]",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5",
+                      "text-sm font-medium",
+                      "transition-all duration-150",
+                      "text-muted-foreground",
+                      "[&_svg]:size-5",
+                      "hover:bg-secondary hover:text-foreground",
+                      "data-[active=true]:bg-secondary data-[active=true]:text-foreground",
                     )}
                   >
                     <HugeiconsIcon icon={item.icon} />
@@ -135,30 +133,25 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* Operations */}
-        <SidebarGroup className="p-0 mb-12">
-          {/* Gold section label — v2 spec */}
-          <SidebarGroupLabel
-            className="px-5 mb-3 text-[11px] font-[600] uppercase tracking-[0.08em]"
-            style={{ color: "#C8A46B" }}
-          >
+        <SidebarGroup className="p-0 mb-6">
+          <SidebarGroupLabel className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden">
             Operations
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1">
               {OPERATIONS_NAV.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     render={<Link href={item.url} />}
                     isActive={isActive(item.url)}
                     className={cn(
-                      "flex items-center gap-4 h-12 px-5 rounded-2xl",
-                      "text-[16px] font-[500] leading-none",
-                      "transition-colors duration-150",
-                      "text-white/80",
-                      "[&_svg]:text-white/70 [&_svg]:size-5",
-                      "hover:bg-[#5C1525] hover:text-white [&:hover_svg]:text-white",
-                      "data-[active=true]:bg-[#5C1525] data-[active=true]:text-white",
-                      "[&[data-active=true]_svg]:text-white",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5",
+                      "text-sm font-medium",
+                      "transition-all duration-150",
+                      "text-muted-foreground",
+                      "[&_svg]:size-5",
+                      "hover:bg-secondary hover:text-foreground",
+                      "data-[active=true]:bg-secondary data-[active=true]:text-foreground",
                     )}
                   >
                     <HugeiconsIcon icon={item.icon} />
@@ -172,28 +165,24 @@ export function AppSidebar() {
 
         {/* Account */}
         <SidebarGroup className="p-0">
-          <SidebarGroupLabel
-            className="px-5 mb-3 text-[11px] font-[600] uppercase tracking-[0.08em]"
-            style={{ color: "#C8A46B" }}
-          >
+          <SidebarGroupLabel className="px-3 mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground group-data-[collapsible=icon]:hidden">
             Account
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1">
               {ACCOUNT_NAV.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     render={<Link href={item.url} />}
                     isActive={isActive(item.url)}
                     className={cn(
-                      "flex items-center gap-4 h-12 px-5 rounded-2xl",
-                      "text-[16px] font-[500] leading-none",
-                      "transition-colors duration-150",
-                      "text-white/80",
-                      "[&_svg]:text-white/70 [&_svg]:size-5",
-                      "hover:bg-[#5C1525] hover:text-white [&:hover_svg]:text-white",
-                      "data-[active=true]:bg-[#5C1525] data-[active=true]:text-white",
-                      "[&[data-active=true]_svg]:text-white",
+                      "flex items-center gap-3 rounded-xl px-3 py-2.5",
+                      "text-sm font-medium",
+                      "transition-all duration-150",
+                      "text-muted-foreground",
+                      "[&_svg]:size-5",
+                      "hover:bg-secondary hover:text-foreground",
+                      "data-[active=true]:bg-secondary data-[active=true]:text-foreground",
                     )}
                   >
                     <HugeiconsIcon icon={item.icon} />
@@ -206,53 +195,35 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Atelier workspace switcher — bottom of sidebar ─────────────── */}
-      <SidebarFooter
-        className="px-3 pb-8 mt-auto"
-        style={{ background: "transparent" }}
-      >
-        {/* Subtle divider */}
-        <div
-          className="mb-4 h-px w-full"
-          style={{ background: "rgba(255,255,255,0.08)" }}
-        />
-
-        {/* Workspace card */}
+      {/* ── Workspace switcher ─────────────────────────────────────────── */}
+      <SidebarFooter className="px-3 pb-4 mt-auto">
+        <div className="flex items-center justify-between px-3 mb-3">
+          <ThemeToggle />
+        </div>
+        <div className="h-px bg-border mb-3" />
         <button
           className={cn(
-            "flex w-full items-center gap-3 rounded-2xl px-4 py-3",
+            "flex w-full items-center gap-3 rounded-xl px-3 py-2.5",
             "transition-colors duration-150",
-            "hover:bg-white/[0.04]",
+            "hover:bg-secondary",
           )}
         >
-          {/* Avatar */}
-          <div
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-sm font-semibold"
-            style={{ background: "#C8A46B", color: "#4B1E2A" }}
-          >
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
             AR
           </div>
 
-          {/* Name + workspace */}
-          <div className="flex flex-1 flex-col items-start gap-0.5 overflow-hidden">
-            <span
-              className="text-[14px] font-[500] leading-none truncate"
-              style={{ color: "#FFFFFF" }}
-            >
+          <div className="flex flex-1 flex-col items-start gap-0.5 overflow-hidden group-data-[collapsible=icon]:hidden">
+            <span className="text-sm font-medium leading-none truncate text-foreground">
               Anio Regalia
             </span>
-            <span
-              className="text-[12px] leading-none truncate"
-              style={{ color: "rgba(255,255,255,0.45)" }}
-            >
+            <span className="text-[11px] leading-none truncate text-muted-foreground">
               Nairobi Atelier
             </span>
           </div>
 
           <HugeiconsIcon
             icon={ChevronDown}
-            className="size-4 shrink-0"
-            style={{ color: "rgba(255,255,255,0.40)" }}
+            className="size-4 shrink-0 text-muted-foreground group-data-[collapsible=icon]:hidden"
           />
         </button>
       </SidebarFooter>

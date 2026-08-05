@@ -212,7 +212,7 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
 
         {isOpen && (
           <div
-            className="rounded-2xl border p-4"
+            className="rounded-xs border p-4"
             style={{ borderColor: T.stone, background: T.softIvory }}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

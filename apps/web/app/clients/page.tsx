@@ -72,7 +72,7 @@ export default function ClientsPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <div className="flex-1 bg-background">
+        <div className="flex-1 m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
           <header className="sticky top-0 z-40 border-b border-border bg-card/80 backdrop-blur-sm">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               <div className="flex h-16 items-center justify-between gap-4">
@@ -135,7 +135,7 @@ export default function ClientsPage() {
             {isLoading && (
               <div className="flex flex-col gap-2">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-16 animate-pulse rounded-lg border border-border" style={{ background: "#F3EFEA" }} />
+                  <div key={i} className="h-16 animate-pulse rounded-lg border border-border bg-muted" />
                 ))}
               </div>
             )}

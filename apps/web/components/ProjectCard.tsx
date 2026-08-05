@@ -16,18 +16,18 @@ interface ProjectCardProps {
 
 // ── Status badge colours per spec §7 ─────────────────────────────────────
 const STATUS_BG: Record<ProjectStatus, string> = {
-  Active:    "#4B1E2A",
-  Draft:     "#C8A46B",
-  Completed: "#2E6B4E",
-  OnHold:    "#5C5852",
-  Archived:  "#E7E2DB",
+  Active:    "hsl(345 60% 28%)",
+  Draft:     "hsl(45 93% 58%)",
+  Completed: "hsl(140 38% 30%)",
+  OnHold:    "hsl(0 0% 46%)",
+  Archived:  "hsl(0 0% 91%)",
 }
 const STATUS_TEXT: Record<ProjectStatus, string> = {
   Active:    "#FFFFFF",
   Draft:     "#FFFFFF",
   Completed: "#FFFFFF",
   OnHold:    "#FFFFFF",
-  Archived:  "#1B1A17",
+  Archived:  "hsl(40 5% 10%)",
 }
 const STATUS_LABELS: Record<ProjectStatus, string> = {
   Draft:     "Draft",
@@ -76,11 +76,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return (
       <button
         onClick={onClick}
-        className="flex w-full items-center gap-4 rounded-3xl border p-4 text-left transition-shadow hover:shadow-[0_2px_8px_rgba(20,20,19,0.06)]"
-        style={{
-          background: "#FFFFFF",
-          borderColor: "#E9E3DB",
-        }}
+        className="flex w-full items-center gap-4 rounded-xs bg-card p-4 text-left transition-colors"
       >
         {/* Thumbnail */}
         <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
@@ -95,16 +91,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p
-            className="text-[11px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: "#C8A46B" }}
-          >
+          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
             {TYPE_LABELS[project.type]}
           </p>
-          <p
-            className="font-heading truncate text-[16px] font-semibold"
-            style={{ color: "#1B1A17" }}
-          >
+          <p className="font-heading truncate text-[16px] font-semibold text-foreground">
             {project.title}
           </p>
         </div>
@@ -127,16 +117,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   return (
     <button
       onClick={onClick}
-      className="group flex w-full flex-col overflow-hidden rounded-3xl border text-left transition-shadow hover:shadow-[0_8px_24px_rgba(20,20,19,0.08)]"
-      style={{
-        background: "#FFFFFF",
-        borderColor: "#E9E3DB",
-        boxShadow: "0 2px 8px rgba(20,20,19,0.06)",
-        minHeight: "360px",
-      }}
+      className="group flex w-full flex-col overflow-hidden rounded-xs bg-card text-left transition-shadow"
+      style={{ minHeight: "360px" }}
     >
       {/* ── Hero Image — 170px, full width, object-cover ─────────────── */}
-      <div className="relative h-[170px] w-full overflow-hidden">
+      <div className="relative h-[170px] w-full overflow-hidden rounded-xs">
         <Image
           src={TYPE_IMAGES[project.type]}
           alt={`${TYPE_LABELS[project.type]} project photography`}
@@ -145,56 +130,39 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 420px"
         />
 
-        {/* Status badge — top-right, 16px inset */}
-        <span
-          className="absolute top-4 right-4 rounded-full px-4 py-1.5 text-[12px] font-medium"
-          style={{
-            background: STATUS_BG[project.status],
-            color: STATUS_TEXT[project.status],
-          }}
-        >
-          {STATUS_LABELS[project.status]}
-        </span>
+        {/* Overlay badges — commission type (left) + status (right) */}
+        <div className="absolute inset-x-4 top-4 flex items-center justify-between">
+          <span className="rounded-full bg-black/50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.08em] text-white backdrop-blur-sm">
+            {TYPE_LABELS[project.type]}
+          </span>
+          <span
+            className="rounded-full px-4 py-1.5 text-[12px] font-medium"
+            style={{
+              background: STATUS_BG[project.status],
+              color: STATUS_TEXT[project.status],
+            }}
+          >
+            {STATUS_LABELS[project.status]}
+          </span>
+        </div>
       </div>
 
-      {/* ── Content area — 24px padding ──────────────────────────────── */}
-      <div className="flex flex-1 flex-col p-6">
-        {/* Category eyebrow — gold, uppercase, 11px, 700, +8% ls */}
-        <p
-          className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: "#C8A46B" }}
-        >
-          {TYPE_LABELS[project.type]}
-        </p>
-
-        {/* Project name — Playfair Display, 28px, 600 */}
-        <h3
-          className="font-heading mb-2"
-          style={{
-            fontSize: "28px",
-            fontWeight: 600,
-            lineHeight: "36px",
-            color: "#1B1A17",
-          }}
-        >
+      {/* ── Content area ─────────────────────────────────────────────── */}
+      <div className="flex flex-1 flex-col pt-3">
+        {/* Project name */}
+        <h3 className="font-heading mb-1 text-[28px] font-semibold leading-[36px] text-foreground">
           {project.title}
         </h3>
 
-        {/* Description — Inter, 14px, 400, max 2 lines */}
+        {/* Description — max 2 lines */}
         {project.notes && (
-          <p
-            className="mb-auto line-clamp-2 text-[14px] leading-[22px]"
-            style={{ color: "#5C5852" }}
-          >
+          <p className="mb-auto line-clamp-2 text-[14px] leading-[22px] text-muted-foreground">
             {project.notes}
           </p>
         )}
 
         {/* ── Footer — delivery date + member count ────────────────── */}
-        <div
-          className="mt-4 flex items-center gap-4 border-t pt-4 text-[12px]"
-          style={{ borderColor: "#E7E2DB", color: "#8C857D" }}
-        >
+        <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-[12px] text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <HugeiconsIcon icon={Calendar} className="size-4" />
             <span>Opened {openedDate}</span>

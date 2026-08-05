@@ -17,19 +17,19 @@ export interface PanelProps {
 
 // ── Tokens ────────────────────────────────────────────────────────────────
 export const T = {
-  ink: "#1B1A17",
-  muted: "#8C857D",
-  body: "#5C5852",
-  gold: "#C8A46B",
-  burgundy: "#4B1E2A",
-  stone: "#E7E2DB",
+  ink: "hsl(0 0% 9%)",
+  muted: "hsl(0 0% 45%)",
+  body: "hsl(0 0% 34%)",
+  gold: "hsl(45 93% 58%)",
+  burgundy: "hsl(345 60% 28%)",
+  stone: "hsl(0 0% 90%)",
   white: "#FFFFFF",
-  ivory: "#F6F2EC",
-  softIvory: "#F3EFEA",
-  inputBorder: "#E0DAD0",
-  green: "#2E6B4E",
-  amber: "#B8862B",
-  danger: "#8C2F2F",
+  ivory: "hsl(0 0% 100%)",
+  softIvory: "hsl(0 0% 96%)",
+  inputBorder: "hsl(0 0% 90%)",
+  green: "hsl(140 38% 30%)",
+  amber: "hsl(38 62% 45%)",
+  danger: "hsl(0 84% 60%)",
   cardShadow: "0 2px 8px rgba(20,20,19,.06)",
 } as const
 
@@ -51,8 +51,8 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-3xl border ${padded ? "p-6" : ""} ${className}`}
-      style={{ background: T.white, borderColor: T.stone, boxShadow: T.cardShadow }}
+      className={`rounded-xs border border-border bg-card shadow-sm ${padded ? "p-6" : ""} ${className}`}
+      style={{ boxShadow: T.cardShadow }}
     >
       {children}
     </div>
@@ -73,17 +73,11 @@ export function SectionHeader({
     <div className="mb-5 flex items-end justify-between gap-4">
       <div>
         {eyebrow && (
-          <p
-            className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: T.gold }}
-          >
+          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
             {eyebrow}
           </p>
         )}
-        <h2
-          className="font-heading text-[28px] font-semibold leading-tight"
-          style={{ color: T.ink }}
-        >
+        <h2 className="font-heading text-[28px] font-semibold leading-tight text-foreground">
           {title}
         </h2>
       </div>
@@ -94,10 +88,7 @@ export function SectionHeader({
 
 export function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label
-      className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em]"
-      style={{ color: T.body }}
-    >
+    <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
       {children}
     </label>
   )
@@ -115,16 +106,12 @@ export function Field({
 }) {
   return (
     <div>
-      <p
-        className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em]"
-        style={{ color: T.muted }}
-      >
+      <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
         {label}
       </p>
       <p
-        className={mono ? "font-mono text-[15px]" : "text-[15px]"}
+        className={`text-[15px] text-foreground ${mono ? "font-mono" : ""}`}
         style={{
-          color: T.ink,
           fontVariantNumeric: mono ? "tabular-nums" : undefined,
         }}
       >
@@ -153,8 +140,7 @@ export function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex h-[44px] items-center justify-center gap-2 rounded-full px-5 text-[14px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 ${full ? "w-full" : ""}`}
-      style={{ background: T.burgundy }}
+      className={`inline-flex h-[44px] items-center justify-center gap-2 rounded-full bg-primary px-5 text-[14px] font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 ${full ? "w-full" : ""}`}
     >
       {children}
     </button>
@@ -177,8 +163,7 @@ export function SecondaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex h-[44px] items-center justify-center gap-2 rounded-full border px-5 text-[14px] font-medium transition-colors hover:bg-[#F3EFEA] disabled:cursor-not-allowed disabled:opacity-40"
-      style={{ borderColor: "#D9D2C7", color: T.ink, background: "transparent" }}
+      className="inline-flex h-[44px] items-center justify-center gap-2 rounded-full border border-border bg-transparent px-5 text-[14px] font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
     >
       {children}
     </button>
@@ -212,8 +197,7 @@ export function PanelLoading() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="h-20 animate-pulse rounded-3xl border"
-          style={{ background: T.softIvory, borderColor: T.stone }}
+          className="h-20 animate-pulse rounded-xs border border-border bg-muted"
         />
       ))}
     </div>
@@ -237,29 +221,20 @@ export function EmptyState({
   return (
     <Card className="flex flex-col items-center py-16 text-center">
       {icon && (
-        <div
-          className="mb-5 flex size-14 items-center justify-center rounded-full"
-          style={{ background: T.ivory }}
-        >
-          <HugeiconsIcon icon={icon} className="size-6" style={{ color: T.burgundy }} />
+        <div className="mb-5 flex size-14 items-center justify-center rounded-full bg-background">
+          <HugeiconsIcon icon={icon} className="size-6 text-primary" />
         </div>
       )}
       {eyebrow && (
-        <p
-          className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: T.gold }}
-        >
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
           {eyebrow}
         </p>
       )}
-      <h3
-        className="font-heading mb-2 text-[22px] font-semibold"
-        style={{ color: T.ink }}
-      >
+      <h3 className="font-heading mb-2 text-[22px] font-semibold text-foreground">
         {title}
       </h3>
       {body && (
-        <p className="mb-6 max-w-[360px] text-[14px] leading-[22px]" style={{ color: T.muted }}>
+        <p className="mb-6 max-w-[360px] text-[14px] leading-[22px] text-muted-foreground">
           {body}
         </p>
       )}
@@ -272,10 +247,10 @@ export function EmptyState({
 export function Blocked({ title, body }: { title: string; body: string }) {
   return (
     <Card className="py-12 text-center">
-      <h3 className="font-heading mb-2 text-[20px] font-semibold" style={{ color: T.ink }}>
+      <h3 className="font-heading mb-2 text-[20px] font-semibold text-foreground">
         {title}
       </h3>
-      <p className="mx-auto max-w-[420px] text-[14px] leading-[22px]" style={{ color: T.muted }}>
+      <p className="mx-auto max-w-[420px] text-[14px] leading-[22px] text-muted-foreground">
         {body}
       </p>
     </Card>

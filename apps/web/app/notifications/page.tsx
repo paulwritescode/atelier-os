@@ -1,6 +1,5 @@
 "use client"
 
-
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@convex/_generated/api"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -25,10 +24,10 @@ function timeAgo(timestamp: number): string {
 }
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  appointment: { bg: "#EDE8F5", text: "#5B3E96" },
-  payment: { bg: "#E8F5E9", text: "#2E7D32" },
-  project: { bg: "#FFF3E0", text: "#E65100" },
-  system: { bg: "#F6F2EC", text: "#8C857D" },
+  appointment: { bg: "bg-purple-50", text: "text-purple-700" },
+  payment: { bg: "bg-green-50", text: "text-green-800" },
+  project: { bg: "bg-orange-50", text: "text-orange-900" },
+  system: { bg: "bg-muted", text: "text-muted-foreground" },
 }
 
 export default function NotificationsPage() {
@@ -56,32 +55,22 @@ export default function NotificationsPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full" style={{ background: "#F6F2EC" }}>
+      <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <div className="flex-1">
+        <div className="flex-1 m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
           {/* Header */}
           <header
-            className="sticky top-0 z-40 border-b backdrop-blur-sm"
-            style={{
-              height: 72,
-              borderColor: "#E7E2DB",
-              background: "rgba(255,255,255,0.8)",
-            }}
+            className="sticky top-0 z-40 border-b border-border backdrop-blur-sm bg-card/80"
+            style={{ height: 72 }}
           >
             <div className="mx-auto flex h-full max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
               <div className="flex items-center gap-3">
                 <SidebarTrigger />
-                <h1
-                  className="font-heading text-xl font-semibold"
-                  style={{ color: "#1B1A17" }}
-                >
+                <h1 className="font-heading text-xl font-semibold text-foreground">
                   Notifications
                 </h1>
                 {notifications && notifications.length > 0 && (
-                  <span
-                    className="rounded-full px-2 py-0.5 font-mono text-xs"
-                    style={{ background: "#F6F2EC", color: "#8C857D" }}
-                  >
+                  <span className="rounded-full bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground">
                     {notifications.length}
                   </span>
                 )}
@@ -89,8 +78,7 @@ export default function NotificationsPage() {
               {notifications && notifications.length > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors hover:opacity-80"
-                  style={{ color: "#4B1E2A", background: "#F6F2EC" }}
+                  className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:opacity-80"
                 >
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} className="size-4" />
                   Mark all read
@@ -107,27 +95,13 @@ export default function NotificationsPage() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="animate-pulse rounded-[24px] border px-5 py-4"
-                    style={{
-                      background: "#FFFFFF",
-                      borderColor: "#E7E2DB",
-                      boxShadow: "0 2px 8px rgba(20,20,19,.06)",
-                    }}
+                    className="animate-pulse rounded-[24px] border border-border bg-card px-5 py-4 shadow-sm"
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className="size-8 rounded-full"
-                        style={{ background: "#E7E2DB" }}
-                      />
+                      <div className="size-8 rounded-full bg-border" />
                       <div className="flex-1 space-y-2">
-                        <div
-                          className="h-4 w-3/4 rounded"
-                          style={{ background: "#E7E2DB" }}
-                        />
-                        <div
-                          className="h-3 w-1/3 rounded"
-                          style={{ background: "#E7E2DB" }}
-                        />
+                        <div className="h-4 w-3/4 rounded bg-border" />
+                        <div className="h-3 w-1/3 rounded bg-border" />
                       </div>
                     </div>
                   </div>
@@ -137,31 +111,17 @@ export default function NotificationsPage() {
 
             {/* Empty state */}
             {isEmpty && (
-              <div
-                className="flex flex-col items-center justify-center rounded-[24px] border px-6 py-16 text-center"
-                style={{
-                  background: "#FFFFFF",
-                  borderColor: "#E7E2DB",
-                  boxShadow: "0 2px 8px rgba(20,20,19,.06)",
-                }}
-              >
-                <div
-                  className="mb-4 flex size-12 items-center justify-center rounded-full"
-                  style={{ background: "#F6F2EC" }}
-                >
+              <div className="flex flex-col items-center justify-center rounded-[24px] border border-border bg-card px-6 py-16 text-center shadow-sm">
+                <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-muted">
                   <HugeiconsIcon
                     icon={Notification03Icon}
-                    className="size-6"
-                    style={{ color: "#8C857D" }}
+                    className="size-6 text-muted-foreground"
                   />
                 </div>
-                <p
-                  className="font-heading text-lg font-medium"
-                  style={{ color: "#1B1A17" }}
-                >
+                <p className="font-heading text-lg font-medium text-foreground">
                   No notifications
                 </p>
-                <p className="mt-2 max-w-sm text-sm" style={{ color: "#8C857D" }}>
+                <p className="mt-2 max-w-sm text-sm text-muted-foreground">
                   You&apos;re all caught up. New notifications will appear here.
                 </p>
               </div>
@@ -177,49 +137,35 @@ export default function NotificationsPage() {
                   return (
                     <div
                       key={notification._id}
-                      className="rounded-[24px] border px-5 py-4 transition-all"
-                      style={{
-                        background: isUnread ? "#FFFFFF" : "#FAFAF8",
-                        borderColor: isUnread ? "#E7E2DB" : "#F0EDE7",
-                        boxShadow: isUnread
-                          ? "0 2px 8px rgba(20,20,19,.06)"
-                          : "none",
-                      }}
+                      className={`rounded-[24px] border px-5 py-4 transition-all ${
+                        isUnread
+                          ? "border-border bg-card shadow-sm"
+                          : "border-border/60 bg-muted/50"
+                      }`}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3">
                           {/* Unread dot */}
                           <div className="flex size-8 shrink-0 items-center justify-center">
                             {isUnread && (
-                              <div
-                                className="size-2.5 rounded-full"
-                                style={{ background: "#4B1E2A" }}
-                              />
+                              <div className="size-2.5 rounded-full bg-primary" />
                             )}
                           </div>
                           <div className="flex-1">
                             <div className="mb-1 flex items-center gap-2">
                               <span
-                                className="rounded-md px-2 py-0.5 text-xs font-medium capitalize"
-                                style={{
-                                  background: typeStyle.bg,
-                                  color: typeStyle.text,
-                                }}
+                                className={`rounded-md px-2 py-0.5 text-xs font-medium capitalize ${typeStyle.bg} ${typeStyle.text}`}
                               >
                                 {notification.type}
                               </span>
-                              <span
-                                className="font-mono text-xs"
-                                style={{ color: "#8C857D" }}
-                              >
+                              <span className="font-mono text-xs text-muted-foreground">
                                 {timeAgo(notification.createdAt)}
                               </span>
                             </div>
                             <p
-                              className="text-sm"
-                              style={{
-                                color: isUnread ? "#1B1A17" : "#8C857D",
-                              }}
+                              className={`text-sm ${
+                                isUnread ? "text-foreground" : "text-muted-foreground"
+                              }`}
                             >
                               {notification.message}
                             </p>
@@ -230,8 +176,7 @@ export default function NotificationsPage() {
                         {isUnread && (
                           <button
                             onClick={() => handleMarkRead(notification._id)}
-                            className="shrink-0 rounded-lg px-2.5 py-1 text-xs font-medium transition-colors hover:opacity-80"
-                            style={{ color: "#4B1E2A", background: "#F6F2EC" }}
+                            className="shrink-0 rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-primary transition-colors hover:opacity-80"
                           >
                             Mark read
                           </button>

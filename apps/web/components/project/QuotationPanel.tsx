@@ -174,7 +174,7 @@ export function QuotationPanel({ projectId, staffId, isLocked }: PanelProps) {
           {items.map((item, index) => (
             <div
               key={item.id}
-              className="grid grid-cols-1 gap-3 rounded-2xl border p-4 sm:grid-cols-[1fr_88px_140px_auto]"
+              className="grid grid-cols-1 gap-3 rounded-xs border p-4 sm:grid-cols-[1fr_88px_140px_auto]"
               style={{ borderColor: T.stone, background: T.softIvory }}
             >
               <div>
@@ -238,7 +238,7 @@ export function QuotationPanel({ projectId, staffId, isLocked }: PanelProps) {
           </div>
 
           <div
-            className="flex items-center justify-between rounded-2xl border px-4 py-3"
+            className="flex items-center justify-between rounded-xs border px-4 py-3"
             style={{ borderColor: T.stone, background: T.ivory }}
           >
             <span

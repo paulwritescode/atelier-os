@@ -33,7 +33,7 @@ const inputCls =
   "h-[44px] w-full rounded-full border px-4 text-[14px] outline-none disabled:opacity-50"
 const inputSty: React.CSSProperties = {
   background: PT.ivory,
-  borderColor: "#E0DAD0",
+  borderColor: PT.stone,
   color: PT.ink,
 }
 
@@ -250,7 +250,7 @@ function TeamTab({
 
         {showForm && (
           <div
-            className="rounded-2xl border p-4"
+            className="rounded-xs border p-4"
             style={{ borderColor: PT.stone, background: PT.softIvory }}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -309,7 +309,7 @@ function TeamTab({
                 onClick={() => setShowForm(false)}
                 disabled={busy}
                 className="h-[44px] rounded-full border px-5 text-[14px] font-medium transition-colors hover:bg-white"
-                style={{ borderColor: "#D9D2C7", color: PT.ink }}
+                style={{ borderColor: PT.stone, color: PT.ink }}
               >
                 Cancel
               </button>
@@ -364,8 +364,8 @@ function TeamTab({
                     <button
                       onClick={() => handleRotate(member._id, member.name)}
                       disabled={busy}
-                      className="h-9 rounded-full border px-4 text-[13px] font-medium transition-colors hover:bg-[#F3EFEA] disabled:opacity-50"
-                      style={{ borderColor: "#D9D2C7", color: PT.ink }}
+                      className="h-9 rounded-full border px-4 text-[13px] font-medium transition-colors hover:bg-muted disabled:opacity-50"
+                      style={{ borderColor: PT.stone, color: PT.ink }}
                     >
                       Rotate PIN
                     </button>
@@ -375,8 +375,8 @@ function TeamTab({
                         setCustomPin("")
                       }}
                       disabled={busy}
-                      className="h-9 rounded-full border px-4 text-[13px] font-medium transition-colors hover:bg-[#F3EFEA] disabled:opacity-50"
-                      style={{ borderColor: "#D9D2C7", color: PT.ink }}
+                      className="h-9 rounded-full border px-4 text-[13px] font-medium transition-colors hover:bg-muted disabled:opacity-50"
+                      style={{ borderColor: PT.stone, color: PT.ink }}
                     >
                       Set PIN
                     </button>
@@ -387,7 +387,7 @@ function TeamTab({
 
             {editingId === member._id && (
               <div
-                className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border p-4"
+                className="mt-4 flex flex-wrap items-end gap-3 rounded-xs border p-4"
                 style={{ borderColor: PT.stone, background: PT.softIvory }}
               >
                 <div className="min-w-[220px] flex-1">

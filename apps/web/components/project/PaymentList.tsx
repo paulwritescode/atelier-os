@@ -162,7 +162,7 @@ export function PaymentList({ projectId, staffId, isLocked }: PanelProps) {
 
         {isOpen && (
           <div
-            className="mb-5 rounded-2xl border p-4"
+            className="mb-5 rounded-xs border p-4"
             style={{ borderColor: T.stone, background: T.softIvory }}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -263,7 +263,7 @@ export function PaymentList({ projectId, staffId, isLocked }: PanelProps) {
               return (
                 <div
                   key={id}
-                  className="flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3"
+                  className="flex flex-wrap items-center gap-3 rounded-xs border px-4 py-3"
                   style={{ borderColor: T.stone, background: T.ivory }}
                 >
                   <Badge bg={colors.bg} fg={colors.fg}>

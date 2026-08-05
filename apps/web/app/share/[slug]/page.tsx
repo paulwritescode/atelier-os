@@ -14,18 +14,18 @@ import { api } from "@convex/_generated/api"
 import type { ProjectStatus, ProjectType } from "@/lib/types"
 
 const S = {
-  ink: "#1B1A17",
-  muted: "#8C857D",
-  body: "#5C5852",
-  gold: "#C8A46B",
-  burgundy: "#4B1E2A",
-  stone: "#E7E2DB",
-  white: "#FFFFFF",
-  ivory: "#F6F2EC",
-  softIvory: "#F3EFEA",
-  inputBorder: "#E0DAD0",
-  green: "#2E6B4E",
-  cardShadow: "0 2px 8px rgba(20,20,19,.06)",
+  ink: "hsl(0 0% 9%)",
+  muted: "hsl(0 0% 45%)",
+  body: "hsl(0 0% 34%)",
+  gold: "hsl(45 93% 58%)",
+  burgundy: "hsl(345 60% 28%)",
+  stone: "hsl(30 20% 88%)",
+  white: "hsl(0 0% 100%)",
+  ivory: "hsl(35 38% 95%)",
+  softIvory: "hsl(33 30% 93%)",
+  inputBorder: "hsl(35 25% 84%)",
+  green: "hsl(153 40% 30%)",
+  cardShadow: "0 2px 8px hsl(45 3% 8% / 0.06)",
 }
 
 const LIFECYCLE = [
@@ -153,7 +153,7 @@ export default function SharedCommissionPage({
           {wrongPin && (
             <div
               className="mb-5 rounded-xl px-4 py-3 text-[13px] font-medium"
-              style={{ background: "#FDF2F2", color: "#8C2F2F" }}
+              style={{ background: "hsl(0 86% 97%)", color: "hsl(0 50% 37%)" }}
             >
               That PIN did not match. Try again.
             </div>
@@ -170,7 +170,7 @@ export default function SharedCommissionPage({
               value={pinInput}
               onChange={(e) => setPinInput(e.target.value)}
               placeholder="Your PIN"
-              className="mb-4 h-[44px] w-full rounded-full border px-4 text-center font-mono text-[16px] tracking-[0.25em] outline-none focus:border-[#C8A46B]"
+              className="mb-4 h-[44px] w-full rounded-full border px-4 text-center font-mono text-[16px] tracking-[0.25em] outline-none focus:border-[hsl(45_93%_58%)]"
               style={{ background: S.ivory, borderColor: S.inputBorder, color: S.ink }}
             />
             <button
@@ -275,7 +275,7 @@ export default function SharedCommissionPage({
             {project.stories.map((s) => (
               <div
                 key={s._id}
-                className="rounded-2xl border p-4"
+                className="rounded-xs border p-4"
                 style={{ background: S.ivory, borderColor: S.stone }}
               >
                 {s.text && (
@@ -407,7 +407,7 @@ function Card({
 }) {
   return (
     <div
-      className={`rounded-3xl border p-8 ${className}`}
+      className={`rounded-xs border p-8 ${className}`}
       style={{ background: S.white, borderColor: S.stone, boxShadow: S.cardShadow }}
     >
       {children}

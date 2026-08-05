@@ -88,7 +88,7 @@ export default function ProductionPage() {
           {columns.map((col) => (
             <div key={col.key} className="flex w-[280px] shrink-0 flex-col gap-3">
               <div
-                className="flex items-center justify-between rounded-2xl border px-4 py-2.5"
+                className="flex items-center justify-between rounded-xs border px-4 py-2.5"
                 style={{ background: PT.softIvory, borderColor: PT.stone }}
               >
                 <span className="text-[13px] font-semibold" style={{ color: PT.ink }}>
@@ -104,7 +104,7 @@ export default function ProductionPage() {
 
               {col.items.length === 0 ? (
                 <div
-                  className="rounded-2xl border border-dashed px-4 py-6 text-center text-[12px]"
+                  className="rounded-xs border border-dashed px-4 py-6 text-center text-[12px]"
                   style={{ borderColor: PT.stone, color: PT.muted }}
                 >
                   Empty

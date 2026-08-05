@@ -9,18 +9,18 @@ import { AppSidebar } from "@/components/AppSidebar"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 export const PT = {
-  ink: "#1B1A17",
-  muted: "#8C857D",
-  body: "#5C5852",
-  gold: "#C8A46B",
-  burgundy: "#4B1E2A",
-  stone: "#E7E2DB",
+  ink: "hsl(0 0% 9%)",
+  muted: "hsl(0 0% 45%)",
+  body: "hsl(0 0% 34%)",
+  gold: "hsl(45 93% 58%)",
+  burgundy: "hsl(345 60% 28%)",
+  stone: "hsl(0 0% 90%)",
   white: "#FFFFFF",
-  ivory: "#F6F2EC",
-  softIvory: "#F3EFEA",
-  green: "#2E6B4E",
-  amber: "#B8862B",
-  danger: "#8C2F2F",
+  ivory: "hsl(0 0% 100%)",
+  softIvory: "hsl(0 0% 96%)",
+  green: "hsl(140 38% 30%)",
+  amber: "hsl(38 62% 45%)",
+  danger: "hsl(0 84% 60%)",
   cardShadow: "0 2px 8px rgba(20,20,19,.06)",
 } as const
 
@@ -39,25 +39,16 @@ export function PageShell({
 }) {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full" style={{ background: PT.ivory }}>
+      <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <div className="flex min-w-0 flex-1 flex-col">
-          <header
-            className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-4 border-b px-10"
-            style={{ background: PT.ivory, borderColor: PT.stone }}
-          >
-            <SidebarTrigger style={{ color: PT.ink }} />
-            <span
-              className="font-heading text-[18px] font-semibold leading-none tracking-tight"
-              style={{ color: PT.ink }}
-            >
+        <div className="flex min-w-0 flex-1 flex-col m-2 ml-0 border border-border/70 rounded-2xl bg-card overflow-hidden">
+          <header className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-4 border-b border-border bg-background px-10">
+            <SidebarTrigger className="text-foreground" />
+            <span className="font-heading text-[18px] font-semibold leading-none tracking-tight text-foreground">
               {title}
             </span>
             {count !== undefined && (
-              <span
-                className="rounded-full px-2.5 py-0.5 font-mono text-[12px]"
-                style={{ background: PT.softIvory, color: PT.muted }}
-              >
+              <span className="rounded-full bg-muted px-2.5 py-0.5 font-mono text-[12px] text-muted-foreground">
                 {count}
               </span>
             )}
@@ -67,10 +58,7 @@ export function PageShell({
           <main className="flex-1 overflow-y-auto px-10 py-8">
             <div className="mx-auto w-full" style={{ maxWidth: "1440px" }}>
               {eyebrow && (
-                <p
-                  className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]"
-                  style={{ color: PT.gold }}
-                >
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
                   {eyebrow}
                 </p>
               )}
@@ -92,8 +80,8 @@ export function PageCard({
 }) {
   return (
     <div
-      className={`rounded-3xl border p-6 ${className}`}
-      style={{ background: PT.white, borderColor: PT.stone, boxShadow: PT.cardShadow }}
+      className={`rounded-xs border border-border bg-card p-6 ${className}`}
+      style={{ boxShadow: PT.cardShadow }}
     >
       {children}
     </div>
@@ -125,8 +113,7 @@ export function PageLoading() {
       {[1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="h-20 animate-pulse rounded-3xl border"
-          style={{ background: PT.softIvory, borderColor: PT.stone }}
+          className="h-20 animate-pulse rounded-xs border border-border bg-muted"
         />
       ))}
     </div>
@@ -144,10 +131,10 @@ export function PageEmpty({
 }) {
   return (
     <PageCard className="flex flex-col items-center py-16 text-center">
-      <h3 className="font-heading mb-2 text-[22px] font-semibold" style={{ color: PT.ink }}>
+      <h3 className="font-heading mb-2 text-[22px] font-semibold text-foreground">
         {title}
       </h3>
-      <p className="mb-6 max-w-[420px] text-[14px] leading-[22px]" style={{ color: PT.muted }}>
+      <p className="mb-6 max-w-[420px] text-[14px] leading-[22px] text-muted-foreground">
         {body}
       </p>
       {action}

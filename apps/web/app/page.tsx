@@ -122,20 +122,19 @@ export default function Dashboard() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full" style={{ background: "#F6F2EC" }}>
+      <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
 
-        <div className="flex flex-1 flex-col min-w-0">
+        <div className="flex flex-1 flex-col h-screen">
+          <div className="flex-1 overflow-hidden m-2 ml-0 border border-border/70 rounded-2xl bg-card flex flex-col">
           {/* ── Top navigation ─────────────────────────────────────────── */}
           <header
-            className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-6 border-b px-10"
-            style={{ background: "#F6F2EC", borderColor: "#E7E2DB" }}
+            className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-6 border-b border-border px-10 bg-card rounded-t-2xl"
           >
             <div className="flex items-center gap-4 shrink-0">
-              <SidebarTrigger style={{ color: "#1B1A17" }} />
+              <SidebarTrigger className="text-foreground" />
               <span
-                className="font-heading text-[18px] font-semibold leading-none tracking-tight"
-                style={{ color: "#1B1A17" }}
+                className="font-heading text-[18px] font-semibold leading-none tracking-tight text-foreground"
               >
                 Anio Regalia
               </span>
@@ -143,39 +142,36 @@ export default function Dashboard() {
 
             <div className="flex-1 flex justify-center">
               <div
-                className="flex h-[44px] w-full max-w-[420px] items-center gap-3 rounded-full border px-4"
-                style={{ background: "#FFFFFF", borderColor: "#E7E2DB" }}
+                className="flex h-[44px] w-full max-w-[420px] items-center gap-3 rounded-full border border-border bg-card px-4"
               >
-                <HugeiconsIcon icon={Search} className="size-[18px] shrink-0" style={{ color: "#8C857D" }} />
+                <HugeiconsIcon icon={Search} className="size-[18px] shrink-0 text-muted-foreground" />
                 <input
                   type="text"
                   placeholder="Search projects or clients..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent text-[14px] leading-none outline-none"
-                  style={{ color: "#1B1A17" }}
+                  className="flex-1 bg-transparent text-[14px] leading-none outline-none text-foreground placeholder:text-muted-foreground"
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <button className="relative flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[#F3EFEA]" style={{ color: "#1B1A17" }}>
+              <button className="relative flex h-9 w-9 items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent">
                 <HugeiconsIcon icon={Bell} className="size-5" />
                 {(notificationCount ?? 0) > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-semibold text-white" style={{ background: "#8C2F2F" }}>
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] font-semibold text-destructive-foreground">
                     {notificationCount}
                   </span>
                 )}
               </button>
 
-              <button className="flex h-9 w-9 items-center justify-center rounded-full transition-opacity hover:opacity-80" style={{ background: "#4B1E2A" }}>
-                <HugeiconsIcon icon={User} className="size-4 text-white" />
+              <button className="flex h-9 w-9 items-center justify-center rounded-full bg-primary transition-opacity hover:opacity-80">
+                <HugeiconsIcon icon={User} className="size-4 text-primary-foreground" />
               </button>
 
               <button
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-[44px] items-center gap-[10px] rounded-full px-6 text-[14px] font-medium text-white transition-opacity hover:opacity-90"
-                style={{ background: "#4B1E2A" }}
+                className="flex h-[44px] items-center gap-[10px] rounded-xl bg-primary px-6 text-[14px] font-medium text-primary-foreground transition-opacity hover:bg-primary/90"
               >
                 <HugeiconsIcon icon={Plus} className="size-[18px]" />
                 New Project
@@ -189,18 +185,18 @@ export default function Dashboard() {
 
               {/* ── Hero section ────────────────────────────────────────── */}
               <section
-                className="mb-16 grid grid-cols-2 overflow-hidden rounded-3xl"
-                style={{ background: "#FFFFFF", border: "1px solid #E7E2DB", boxShadow: "0 2px 8px rgba(20,20,19,.06)", minHeight: "380px" }}
+                className="mb-16 grid grid-cols-2 overflow-hidden rounded-xs border border-border bg-card shadow-sm"
+                style={{ minHeight: "380px" }}
               >
                 <div className="flex flex-col justify-center px-12 py-12">
-                  <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C8A46B" }}>Atelier OS</p>
-                  <h1 className="font-heading mb-4" style={{ fontSize: "48px", fontWeight: 600, lineHeight: "56px", letterSpacing: "-0.01em", color: "#1B1A17" }}>
+                  <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Atelier OS</p>
+                  <h1 className="font-heading mb-4 text-foreground" style={{ fontSize: "48px", fontWeight: 600, lineHeight: "56px", letterSpacing: "-0.01em" }}>
                     Anio Regalia
                   </h1>
-                  <p className="max-w-[480px] text-[16px] leading-[28px]" style={{ color: "#5C5852" }}>
+                  <p className="max-w-[480px] text-[16px] leading-[28px] text-muted-foreground">
                     Every bespoke commission, from first consultation to final delivery — managed with the precision your craft deserves.
                   </p>
-                  <div className="mt-8 h-px w-12" style={{ background: "#C8A46B" }} />
+                  <div className="mt-8 h-px w-12 bg-brand-gold" />
                 </div>
                 <div className="relative overflow-hidden" style={{ minHeight: "380px" }}>
                   <Image src="/hero-scissors-linen.jpg" alt="Brass tailor scissors on ivory linen" fill className="object-cover" priority sizes="(max-width: 1440px) 50vw, 720px" />
@@ -212,18 +208,18 @@ export default function Dashboard() {
                 {stats.map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="flex flex-col justify-between rounded-3xl border p-6"
-                    style={{ background: "#FFFFFF", borderColor: "#E7E2DB", boxShadow: "0 2px 8px rgba(20,20,19,.06)", height: "200px" }}
+                    className="glass-card flex flex-col justify-between rounded-xs p-6"
+                    style={{ height: "200px" }}
                   >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full" style={{ background: "#4B1E2A" }}>
-                      <HugeiconsIcon icon={STAT_ICONS[i]} className="size-6 text-white" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xs bg-glass-hover ring-1 ring-glass-border">
+                      <HugeiconsIcon icon={STAT_ICONS[i]} className="size-6 text-foreground" />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <span className="font-mono" style={{ fontSize: "48px", fontWeight: 600, lineHeight: "1", color: "#1B1A17", fontVariantNumeric: "tabular-nums" }}>
+                      <span className="text-3xl font-bold text-foreground font-mono" style={{ fontVariantNumeric: "tabular-nums" }}>
                         {stat.value}
                       </span>
-                      <span className="text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "#8C857D" }}>{stat.label}</span>
-                      <span className="text-[14px]" style={{ color: "#8C857D" }}>{stat.sub}</span>
+                      <span className="text-sm text-muted-foreground font-bold uppercase tracking-[0.08em]">{stat.label}</span>
+                      <span className="text-sm text-muted-foreground">{stat.sub}</span>
                     </div>
                   </div>
                 ))}
@@ -233,16 +229,19 @@ export default function Dashboard() {
               <section>
                 <div className="mb-8 flex items-end justify-between">
                   <div>
-                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C8A46B" }}>Commissions</p>
-                    <h2 className="font-heading" style={{ fontSize: "36px", fontWeight: 600, lineHeight: "44px", color: "#1B1A17" }}>Active Projects</h2>
+                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Commissions</p>
+                    <h2 className="font-heading text-foreground" style={{ fontSize: "36px", fontWeight: 600, lineHeight: "44px" }}>Active Projects</h2>
                   </div>
                   <div className="flex items-center gap-2">
                     {STATUS_FILTERS.map(({ value, label }) => (
                       <button
                         key={value}
                         onClick={() => setStatusFilter(value)}
-                        className="h-10 rounded-full border px-[18px] text-[14px] font-medium transition-colors"
-                        style={statusFilter === value ? { background: "#4B1E2A", borderColor: "#4B1E2A", color: "#FFFFFF" } : { background: "#FFFFFF", borderColor: "#E7E2DB", color: "#8C857D" }}
+                        className={`h-10 rounded-full border px-[18px] text-[14px] font-medium transition-colors ${
+                          statusFilter === value
+                            ? "bg-primary border-primary text-primary-foreground"
+                            : "bg-card border-border text-muted-foreground hover:bg-accent"
+                        }`}
                       >
                         {label}
                       </button>
@@ -252,16 +251,16 @@ export default function Dashboard() {
 
                 {/* Loading state */}
                 {isLoading && (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-[360px] animate-pulse rounded-3xl border" style={{ background: "#F3EFEA", borderColor: "#E7E2DB" }} />
+                      <div key={i} className="h-[360px] animate-pulse rounded-xs border border-border bg-accent" />
                     ))}
                   </div>
                 )}
 
                 {/* Project grid */}
                 {!isLoading && filtered.length > 0 && (
-                  <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((project) => (
                       <ProjectCard
                         key={project._id}
@@ -277,18 +276,18 @@ export default function Dashboard() {
                 {/* Empty state */}
                 {!isLoading && filtered.length === 0 && (
                   <div
-                    className="relative flex flex-col items-start justify-end overflow-hidden rounded-3xl border p-12"
-                    style={{ background: "#FFFFFF", borderColor: "#E7E2DB", boxShadow: "0 2px 8px rgba(20,20,19,.06)", minHeight: "320px" }}
+                    className="relative flex flex-col items-start justify-end overflow-hidden rounded-xs border border-border bg-card shadow-sm p-12"
+                    style={{ minHeight: "320px" }}
                   >
                     <Image src="/atelier-cutting-table.jpg" alt="Empty atelier" fill className="object-cover opacity-10" sizes="(max-width: 1440px) 100vw" />
                     <div className="relative z-10">
-                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em]" style={{ color: "#C8A46B" }}>Ready to begin</p>
-                      <h3 className="font-heading mb-3" style={{ fontSize: "28px", fontWeight: 600, lineHeight: "36px", color: "#1B1A17" }}>No projects found</h3>
-                      <p className="mb-8 max-w-[360px] text-[15px] leading-[24px]" style={{ color: "#8C857D" }}>
+                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Ready to begin</p>
+                      <h3 className="font-heading mb-3 text-foreground" style={{ fontSize: "28px", fontWeight: 600, lineHeight: "36px" }}>No projects found</h3>
+                      <p className="mb-8 max-w-[360px] text-[15px] leading-[24px] text-muted-foreground">
                         {searchQuery || statusFilter !== "all" ? "Try adjusting your search or filters." : "Create your first commission to begin."}
                       </p>
                       {!searchQuery && statusFilter === "all" && (
-                        <button onClick={() => setIsCreateOpen(true)} className="flex h-[44px] items-center gap-[10px] rounded-full px-6 text-[14px] font-medium text-white transition-opacity hover:opacity-90" style={{ background: "#4B1E2A" }}>
+                        <button onClick={() => setIsCreateOpen(true)} className="flex h-[44px] items-center gap-[10px] rounded-xl bg-primary px-6 text-[14px] font-medium text-primary-foreground transition-opacity hover:bg-primary/90">
                           <HugeiconsIcon icon={Plus} className="size-[18px]" />
                           New Commission
                         </button>
@@ -299,6 +298,7 @@ export default function Dashboard() {
               </section>
             </div>
           </main>
+          </div>
         </div>
       </div>
 
