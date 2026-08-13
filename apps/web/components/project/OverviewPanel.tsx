@@ -1,14 +1,23 @@
 "use client"
 
 /**
- * Overview — the commission at a glance, plus where it sits in the lifecycle.
- * Lifecycle stages come from Business workflows.md §Standard Project Lifecycle.
+ * Overview — the commission at a glance.
  */
-import React from "react"
-import { useQuery } from "convex/react"
+import React, { useState } from "react"
+import { useMutation } from "convex/react"
 import { api } from "@convex/_generated/api"
-import type { Doc } from "@convex/_generated/dataModel"
+import type { Id, Doc } from "@convex/_generated/dataModel"
 import type { ProjectStatus, ProjectType } from "@/lib/types"
+import { toast } from "sonner"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { PencilEdit02Icon } from "@hugeicons/core-free-icons"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer"
 import {
   type PanelProps,
   T,
@@ -18,21 +27,11 @@ import {
   Badge,
   fmtKES,
   fmtDate,
+  inputStyle,
+  FieldLabel,
+  PrimaryButton,
+  SecondaryButton,
 } from "./_kit"
-
-const LIFECYCLE = [
-  "Lead",
-  "Consultation",
-  "Design",
-  "Quotation",
-  "Deposit",
-  "Measurements",
-  "Production",
-  "Fitting",
-  "Final Payment",
-  "Delivery",
-  "Completed",
-] as const
 
 const TYPE_LABEL: Record<ProjectType, string> = {
   Wedding: "Wedding",
@@ -42,6 +41,32 @@ const TYPE_LABEL: Record<ProjectType, string> = {
   GalaOutfit: "Gala Outfit",
   Photoshoot: "Photoshoot",
   Alteration: "Alteration",
+}
+
+const PROJECT_TYPES: ProjectType[] = [
+  "Wedding",
+  "Corporate",
+  "Individual",
+  "ClosetRevamp",
+  "GalaOutfit",
+  "Photoshoot",
+  "Alteration",
+]
+
+const STATUS_OPTIONS: ProjectStatus[] = [
+  "Draft",
+  "Active",
+  "OnHold",
+  "Completed",
+  "Archived",
+]
+
+const STATUS_LABEL: Record<ProjectStatus, string> = {
+  Draft: "Draft",
+  Active: "Active",
+  OnHold: "On Hold",
+  Completed: "Completed",
+  Archived: "Archived",
 }
 
 interface PaymentSummary {
@@ -62,40 +87,77 @@ interface OverviewPanelProps extends PanelProps {
 }
 
 export function OverviewPanel({
-  projectId,
   project,
+  projectId,
+  staffId,
+  isLocked,
   clientName,
   paymentSummary,
+  onStatusChange,
 }: OverviewPanelProps) {
-  // Derive the true lifecycle position from actual records rather than guessing
-  // from status alone.
-  const consultation = useQuery(api.consultations.getByProject, { projectId })
-  const design = useQuery(api.designs.getByProject, { projectId })
-  const quotation = useQuery(api.quotations.getByProject, { projectId })
-  const participants = useQuery(api.participants.listByProjectDetailed, { projectId })
-  const garments = useQuery(api.production.listByProject, { projectId })
+  const [editOpen, setEditOpen] = useState(false)
+  const [title, setTitle] = useState(project.title)
+  const [notes, setNotes] = useState(project.notes ?? "")
+  const [type, setType] = useState<ProjectType>(project.type as ProjectType)
+  const [status, setStatus] = useState<ProjectStatus>(project.status as ProjectStatus)
+  const [saving, setSaving] = useState(false)
 
-  const stageIndex = deriveStage({
-    status: project.status,
-    hasConsultation: !!consultation,
-    consultationComplete: !!consultation?.completedAt,
-    hasDesign: !!design,
-    designApproved: !!design?.approvedAt,
-    hasQuotation: !!quotation,
-    quotationAccepted: quotation?.status === "Accepted",
-    depositSatisfied: !!paymentSummary?.depositSatisfied,
-    hasMeasurements: (participants ?? []).some((p) => p.latestMeasurementId !== null),
-    inProduction: (garments ?? []).some((g) => g.currentStage !== null),
-    allDelivered:
-      (garments ?? []).length > 0 &&
-      (garments ?? []).every((g) => g.status === "Delivered"),
-  })
+  const updateProject = useMutation(api.projects.update)
+
+  const openSheet = () => {
+    // Sync form state with current project values
+    setTitle(project.title)
+    setNotes(project.notes ?? "")
+    setType(project.type as ProjectType)
+    setStatus(project.status as ProjectStatus)
+    setEditOpen(true)
+  }
+
+  const handleSave = async () => {
+    if (!staffId) return
+    setSaving(true)
+    try {
+      await updateProject({
+        id: projectId,
+        title,
+        notes,
+        type,
+        status,
+        updatedBy: staffId,
+      })
+      // If status changed, notify parent
+      if (status !== project.status) {
+        onStatusChange(status)
+      }
+      toast.success("Project updated")
+      setEditOpen(false)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not update project")
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Facts */}
-      <Card>
-        <SectionHeader eyebrow="At a glance" title="Commission" />
+      {/* Commission — At a glance (no Card wrapper) */}
+      <div className="relative">
+        <SectionHeader
+          eyebrow="At a glance"
+          title="Commission"
+          action={
+            !isLocked ? (
+              <button
+                type="button"
+                onClick={openSheet}
+                className="flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Edit project details"
+              >
+                <HugeiconsIcon icon={PencilEdit02Icon} className="size-4" />
+              </button>
+            ) : undefined
+          }
+        />
         <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
           <Field label="Client" value={clientName ?? "—"} />
           <Field label="Type" value={TYPE_LABEL[project.type as ProjectType]} />
@@ -108,18 +170,13 @@ export function OverviewPanel({
             <Field label="Notes" value={project.notes} />
           </div>
         )}
-      </Card>
+      </div>
 
-      {/* Money */}
+      {/* Financials */}
       {paymentSummary?.hasQuotation && (
         <Card>
           <div className="mb-5 flex items-center justify-between gap-3">
-            <p
-              className="text-[11px] font-bold uppercase tracking-[0.08em]"
-              style={{ color: T.gold }}
-            >
-              Financials
-            </p>
+            <p className="eyebrow text-ink">Financials</p>
             {paymentSummary.depositSatisfied ? (
               <Badge bg={T.green} fg={T.white}>
                 Deposit settled
@@ -143,62 +200,94 @@ export function OverviewPanel({
         </Card>
       )}
 
-      {/* Lifecycle */}
-      <Card>
-        <p
-          className="mb-4 text-[11px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: T.gold }}
-        >
-          Lifecycle
-        </p>
-        <div className="flex flex-wrap gap-1.5">
-          {LIFECYCLE.map((stage, i) => {
-            const done = i < stageIndex
-            const current = i === stageIndex
-            return (
-              <span
-                key={stage}
-                className="rounded-full px-3 py-1.5 text-[12px] font-medium"
-                style={{
-                  background: current ? T.burgundy : done ? T.gold : T.softIvory,
-                  color: current || done ? T.white : T.muted,
-                }}
+      {/* Edit Sheet */}
+      <Drawer open={editOpen} onOpenChange={setEditOpen} swipeDirection="right">
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Edit Project</DrawerTitle>
+            <DrawerDescription>
+              Update the commission details below.
+            </DrawerDescription>
+          </DrawerHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSave()
+            }}
+            className="flex flex-1 flex-col gap-5 overflow-y-auto p-6"
+          >
+            {/* Title */}
+            <div>
+              <FieldLabel>Title</FieldLabel>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="h-[44px] w-full rounded-md border px-3 text-[14px] outline-none focus:ring-2 focus:ring-primary/20"
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            {/* Type */}
+            <div>
+              <FieldLabel>Type</FieldLabel>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value as ProjectType)}
+                className="h-[44px] w-full rounded-md border px-3 text-[14px] outline-none focus:ring-2 focus:ring-primary/20"
+                style={inputStyle}
               >
-                {stage}
-              </span>
-            )
-          })}
-        </div>
-        <p className="mt-4 text-[13px]" style={{ color: T.muted }}>
-          Currently at <strong style={{ color: T.ink }}>{LIFECYCLE[stageIndex]}</strong>. Stage is
-          derived from the records on this commission, not set by hand.
-        </p>
-      </Card>
+                {PROJECT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {TYPE_LABEL[t]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Status */}
+            <div>
+              <FieldLabel>Status</FieldLabel>
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as ProjectStatus)}
+                className="h-[44px] w-full rounded-md border px-3 text-[14px] outline-none focus:ring-2 focus:ring-primary/20"
+                style={inputStyle}
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Notes */}
+            <div>
+              <FieldLabel>Notes</FieldLabel>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={4}
+                className="w-full rounded-md border px-3 py-2.5 text-[14px] outline-none focus:ring-2 focus:ring-primary/20"
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="mt-auto flex items-center gap-3 pt-4">
+              <PrimaryButton type="submit" disabled={saving || !title.trim()}>
+                {saving ? "Saving…" : "Save"}
+              </PrimaryButton>
+              <SecondaryButton onClick={() => setEditOpen(false)}>
+                Cancel
+              </SecondaryButton>
+            </div>
+          </form>
+        </DrawerContent>
+      </Drawer>
     </div>
   )
-}
-
-/** Walk the lifecycle and return the furthest stage the records support. */
-function deriveStage(s: {
-  status: string
-  hasConsultation: boolean
-  consultationComplete: boolean
-  hasDesign: boolean
-  designApproved: boolean
-  hasQuotation: boolean
-  quotationAccepted: boolean
-  depositSatisfied: boolean
-  hasMeasurements: boolean
-  inProduction: boolean
-  allDelivered: boolean
-}): number {
-  if (s.status === "Completed" || s.status === "Archived") return 10
-  if (s.allDelivered) return 9
-  if (s.inProduction) return 6
-  if (s.hasMeasurements) return 5
-  if (s.depositSatisfied) return 4
-  if (s.quotationAccepted || s.hasQuotation) return 3
-  if (s.designApproved || s.hasDesign) return 2
-  if (s.consultationComplete || s.hasConsultation) return 1
-  return 0
 }

@@ -1,6 +1,5 @@
 "use client"
 
-
 import React, { useState, useMemo } from "react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
@@ -20,6 +19,7 @@ import {
 import { toast } from "sonner"
 import { ProjectCard } from "@/components/ProjectCard"
 import { CreateProjectModal } from "@/components/CreateProjectModal"
+import { ColorBlockSection } from "@/components/ColorBlockSection"
 import { AppSidebar } from "@/components/AppSidebar"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { generateProjectSlug } from "@/lib/utils"
@@ -45,17 +45,14 @@ export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
 
-  // ── Convex queries (real-time, no polling) ──────────────────────────────
   const projects = useQuery(api.projects.list)
   const clients = useQuery(api.clients.list)
   const notificationCount = useQuery(api.notifications.countUnread, {
     recipientId: user?.id ?? "",
   })
 
-  // ── Convex mutation ─────────────────────────────────────────────────────
   const createProject = useMutation(api.projects.create)
 
-  // ── Derived data ────────────────────────────────────────────────────────
   const clientMap = useMemo(() => {
     if (!clients) return new Map<string, string>()
     return new Map(clients.map((c) => [c._id as string, c.name]))
@@ -74,34 +71,33 @@ export default function Dashboard() {
     })
   }, [projects, clientMap, searchQuery, statusFilter])
 
-  // ── Stats (computed from real data) ─────────────────────────────────────
   const stats = useMemo(() => {
     if (!projects || !clients) {
       return [
         { label: "Active Commissions", value: "—", sub: "Loading..." },
         { label: "Clients", value: "—", sub: "Loading..." },
         { label: "Pending Fittings", value: "—", sub: "Loading..." },
-        { label: "Outstanding", value: "—", sub: "Loading..." },
+        { label: "Outstanding Invoices", value: "—", sub: "Loading..." },
       ]
     }
     const active = projects.filter((p) => p.status === "Active").length
     const draft = projects.filter((p) => p.status === "Draft").length
+    const pending = projects.filter((p) => p.status === "OnHold").length
+
     return [
       { label: "Active Commissions", value: String(active), sub: `${draft} in draft` },
       { label: "Clients", value: String(clients.length), sub: "Total registered" },
-      { label: "Pending Fittings", value: "—", sub: "Coming soon" },
-      { label: "Outstanding", value: "—", sub: "Coming soon" },
+      { label: "Pending Fittings", value: String(pending), sub: `${pending > 0 ? "Awaiting client" : "All caught up"}` },
+      { label: "Outstanding Invoices", value: String(0), sub: "None pending" },
     ]
   }, [projects, clients])
 
-  // ── Handlers ────────────────────────────────────────────────────────────
   const handleCreate = async (input: {
     primaryClientId: Id<"clients">
     type: ProjectType
     title: string
     notes?: string
   }) => {
-    // The modal blocks submit without a session, so this is a safety net.
     if (!user) throw new Error("You need to be signed in to create a commission.")
 
     const slug = generateProjectSlug(input.title)
@@ -126,10 +122,9 @@ export default function Dashboard() {
         <AppSidebar />
 
         <div className="flex flex-1 flex-col h-screen">
-          <div className="flex-1 overflow-hidden m-2 ml-0 border border-border/70 rounded-2xl bg-card flex flex-col">
-          {/* ── Top navigation ─────────────────────────────────────────── */}
+          <div className="flex-1 overflow-hidden m-2 ml-0 rounded-2xl bg-card flex flex-col">
           <header
-            className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-6 border-b border-border px-10 bg-card rounded-t-2xl"
+            className="sticky top-0 z-[200] flex h-[72px] shrink-0 items-center gap-6 border-b border-hairline px-10 bg-card rounded-t-2xl"
           >
             <div className="flex items-center gap-4 shrink-0">
               <SidebarTrigger className="text-foreground" />
@@ -142,7 +137,7 @@ export default function Dashboard() {
 
             <div className="flex-1 flex justify-center">
               <div
-                className="flex h-[44px] w-full max-w-[420px] items-center gap-3 rounded-full border border-border bg-card px-4"
+                className="flex h-[44px] w-full max-w-[420px] items-center gap-3 rounded-pill border border-hairline bg-canvas px-4"
               >
                 <HugeiconsIcon icon={Search} className="size-[18px] shrink-0 text-muted-foreground" />
                 <input
@@ -171,7 +166,7 @@ export default function Dashboard() {
 
               <button
                 onClick={() => setIsCreateOpen(true)}
-                className="flex h-[44px] items-center gap-[10px] rounded-xl bg-primary px-6 text-[14px] font-medium text-primary-foreground transition-opacity hover:bg-primary/90"
+                className="btn-primary"
               >
                 <HugeiconsIcon icon={Plus} className="size-[18px]" />
                 New Project
@@ -179,39 +174,36 @@ export default function Dashboard() {
             </div>
           </header>
 
-          {/* ── Workspace ──────────────────────────────────────────────── */}
           <main className="flex-1 overflow-y-auto">
             <div className="mx-auto w-full" style={{ maxWidth: "1440px", padding: "40px" }}>
 
-              {/* ── Hero section ────────────────────────────────────────── */}
               <section
-                className="mb-16 grid grid-cols-2 overflow-hidden rounded-xs border border-border bg-card shadow-sm"
+                className="mb-16 grid grid-cols-2 overflow-hidden rounded-lg bg-canvas"
                 style={{ minHeight: "380px" }}
               >
                 <div className="flex flex-col justify-center px-12 py-12">
-                  <p className="mb-6 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Atelier OS</p>
-                  <h1 className="font-heading mb-4 text-foreground" style={{ fontSize: "48px", fontWeight: 600, lineHeight: "56px", letterSpacing: "-0.01em" }}>
+                  <p className="mb-6 eyebrow text-ink">Atelier OS</p>
+                  <h1 className="display-lg mb-4 text-foreground">
                     Anio Regalia
                   </h1>
-                  <p className="max-w-[480px] text-[16px] leading-[28px] text-muted-foreground">
+                  <p className="body-lg max-w-[480px] text-muted-foreground">
                     Every bespoke commission, from first consultation to final delivery — managed with the precision your craft deserves.
                   </p>
-                  <div className="mt-8 h-px w-12 bg-brand-gold" />
+                  <div className="mt-8 h-px w-12 bg-primary" />
                 </div>
                 <div className="relative overflow-hidden" style={{ minHeight: "380px" }}>
                   <Image src="/hero-scissors-linen.jpg" alt="Brass tailor scissors on ivory linen" fill className="object-cover" priority sizes="(max-width: 1440px) 50vw, 720px" />
                 </div>
               </section>
 
-              {/* ── Statistics cards ────────────────────────────────────── */}
               <section className="mb-16 grid grid-cols-4 gap-6">
                 {stats.map((stat, i) => (
                   <div
                     key={stat.label}
-                    className="glass-card flex flex-col justify-between rounded-xs p-6"
+                    className="bg-canvas flex flex-col justify-between rounded-lg border border-hairline p-6 transition-all hover:shadow-soft"
                     style={{ height: "200px" }}
                   >
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xs bg-glass-hover ring-1 ring-glass-border">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-md bg-surface-soft">
                       <HugeiconsIcon icon={STAT_ICONS[i]} className="size-6 text-foreground" />
                     </div>
                     <div className="flex flex-col gap-1">
@@ -225,22 +217,21 @@ export default function Dashboard() {
                 ))}
               </section>
 
-              {/* ── Commissions section ─────────────────────────────────── */}
               <section>
                 <div className="mb-8 flex items-end justify-between">
                   <div>
-                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Commissions</p>
-                    <h2 className="font-heading text-foreground" style={{ fontSize: "36px", fontWeight: 600, lineHeight: "44px" }}>Active Projects</h2>
+                    <p className="mb-2 eyebrow text-ink">Commissions</p>
+                    <h2 className="display-lg text-foreground">Active Projects</h2>
                   </div>
                   <div className="flex items-center gap-2">
                     {STATUS_FILTERS.map(({ value, label }) => (
                       <button
                         key={value}
                         onClick={() => setStatusFilter(value)}
-                        className={`h-10 rounded-full border px-[18px] text-[14px] font-medium transition-colors ${
+                        className={`h-10 rounded-pill px-[18px] text-[14px] font-medium transition-colors ${
                           statusFilter === value
-                            ? "bg-primary border-primary text-primary-foreground"
-                            : "bg-card border-border text-muted-foreground hover:bg-accent"
+                            ? "bg-primary border border-primary text-primary-foreground"
+                            : "bg-canvas border border-hairline text-muted-foreground hover:bg-surface-soft"
                         }`}
                       >
                         {label}
@@ -249,16 +240,14 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Loading state */}
                 {isLoading && (
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="h-[360px] animate-pulse rounded-xs border border-border bg-accent" />
+                      <div key={i} className="h-[360px] animate-pulse rounded-lg border border-hairline bg-surface-soft" />
                     ))}
                   </div>
                 )}
 
-                {/* Project grid */}
                 {!isLoading && filtered.length > 0 && (
                   <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     {filtered.map((project) => (
@@ -273,21 +262,20 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {/* Empty state */}
                 {!isLoading && filtered.length === 0 && (
                   <div
-                    className="relative flex flex-col items-start justify-end overflow-hidden rounded-xs border border-border bg-card shadow-sm p-12"
+                    className="relative flex flex-col items-start justify-end overflow-hidden rounded-lg bg-canvas p-12"
                     style={{ minHeight: "320px" }}
                   >
                     <Image src="/atelier-cutting-table.jpg" alt="Empty atelier" fill className="object-cover opacity-10" sizes="(max-width: 1440px) 100vw" />
                     <div className="relative z-10">
-                      <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">Ready to begin</p>
-                      <h3 className="font-heading mb-3 text-foreground" style={{ fontSize: "28px", fontWeight: 600, lineHeight: "36px" }}>No projects found</h3>
-                      <p className="mb-8 max-w-[360px] text-[15px] leading-[24px] text-muted-foreground">
+                      <p className="mb-2 eyebrow text-ink">Ready to begin</p>
+                      <h3 className="headline mb-3 text-foreground">No projects found</h3>
+                      <p className="body-lg mb-8 max-w-[360px] text-muted-foreground">
                         {searchQuery || statusFilter !== "all" ? "Try adjusting your search or filters." : "Create your first commission to begin."}
                       </p>
                       {!searchQuery && statusFilter === "all" && (
-                        <button onClick={() => setIsCreateOpen(true)} className="flex h-[44px] items-center gap-[10px] rounded-xl bg-primary px-6 text-[14px] font-medium text-primary-foreground transition-opacity hover:bg-primary/90">
+                        <button onClick={() => setIsCreateOpen(true)} className="btn-primary">
                           <HugeiconsIcon icon={Plus} className="size-[18px]" />
                           New Commission
                         </button>
@@ -296,6 +284,18 @@ export default function Dashboard() {
                   </div>
                 )}
               </section>
+
+              {/* Color Block Section — Figma-style pastel storytelling */}
+              <ColorBlockSection variant="lime" className="mb-16">
+                <div className="max-w-[720px]">
+                  <p className="eyebrow mb-4">Built for artisans</p>
+                  <h2 className="headline mb-6">Every detail matters</h2>
+                  <p className="body-lg">
+                    From consultation to final fitting, track every measurement, material choice, and milestone.
+                    Your craft deserves a workspace as precise as your stitches.
+                  </p>
+                </div>
+              </ColorBlockSection>
             </div>
           </main>
           </div>

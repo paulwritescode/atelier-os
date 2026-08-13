@@ -26,6 +26,7 @@ const TYPE_LABELS: Record<AppointmentRow["type"], string> = {
 }
 
 const STATUS_LABELS: Record<AppointmentRow["status"], string> = {
+  Requested: "Requested",
   Scheduled: "Scheduled",
   Confirmed: "Confirmed",
   Completed: "Completed",
@@ -34,6 +35,7 @@ const STATUS_LABELS: Record<AppointmentRow["status"], string> = {
 }
 
 const STATUS_COLORS: Record<AppointmentRow["status"], string> = {
+  Requested: "hsl(270 60% 70%)",
   Scheduled: PT.gold,
   Confirmed: PT.burgundy,
   Completed: PT.green,

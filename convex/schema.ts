@@ -76,6 +76,20 @@ export default defineSchema({
       v.literal("Archived")
     ),
     notes: v.optional(v.string()),
+    // Lifecycle — manually tracked stage (overrides derived stage when set)
+    lifecycleStage: v.optional(v.union(
+      v.literal("Lead"),
+      v.literal("Consultation"),
+      v.literal("Design"),
+      v.literal("Quotation"),
+      v.literal("Deposit"),
+      v.literal("Measurements"),
+      v.literal("Production"),
+      v.literal("Fitting"),
+      v.literal("Final Payment"),
+      v.literal("Delivery"),
+      v.literal("Completed")
+    )),
     // Sharing — optional PIN protection for shared links
     sharePin: v.optional(v.string()),      // null = public, set = PIN-protected
     isPubliclyShared: v.optional(v.boolean()), // explicit public share toggle
@@ -245,6 +259,7 @@ export default defineSchema({
       v.literal("SiteVisit")
     ),
     status: v.union(
+      v.literal("Requested"),
       v.literal("Scheduled"),
       v.literal("Confirmed"),
       v.literal("Completed"),
@@ -257,6 +272,18 @@ export default defineSchema({
     durationMinutes: v.number(),
     isHomeVisit: v.boolean(),
     notes: v.optional(v.string()),
+    // Tracking — who requested, confirmed, completed
+    ticketRef: v.optional(v.string()),          // e.g. "APT-2026-0042"
+    location: v.optional(v.string()),           // Where the appointment takes place
+    requestedBy: v.optional(v.string()),        // "staff" | "client" — who initiated
+    requestedAt: v.optional(v.number()),
+    confirmedBy: v.optional(v.id("staff")),
+    confirmedAt: v.optional(v.number()),
+    completedBy: v.optional(v.id("staff")),
+    completedAt: v.optional(v.number()),
+    cancelledBy: v.optional(v.id("staff")),
+    cancelledAt: v.optional(v.number()),
+    cancelReason: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_project", ["projectId"])

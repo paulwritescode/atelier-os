@@ -171,14 +171,14 @@ export function StoryPanel({ projectId, staffId, isLocked }: PanelProps) {
         <div className="flex flex-col gap-3">
           <p
             className="text-[11px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: T.gold }}
+            style={{ color: T.amber }}
           >
             Highlighted now
           </p>
           {active.map((s: StoryRow) => (
             <Card key={s._id}>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <Badge bg={T.gold} fg={T.white}>
+                <Badge bg={T.amber} fg={T.white}>
                   {`${hoursRemaining(s.expiresAt)}h remaining`}
                 </Badge>
                 <span className="text-[12px]" style={{ color: T.muted }}>

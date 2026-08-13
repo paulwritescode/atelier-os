@@ -23,7 +23,23 @@ import {
   Badge,
   PanelLoading,
   EmptyState,
+  Field,
 } from "./_kit"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 
 const CLIENT_TYPES = [
   { value: "Individual", label: "Individual" },
@@ -61,6 +77,9 @@ export function ParticipantList({ projectId, staffId, isLocked }: PanelProps) {
   const [newType, setNewType] = useState<ClientType>("Individual")
   const [role, setRole] = useState("")
   const [saving, setSaving] = useState(false)
+
+  const [selectedParticipant, setSelectedParticipant] = useState<ParticipantRow | null>(null)
+  const [showDetails, setShowDetails] = useState(false)
 
   const disabled = isLocked || !staffId
 
@@ -117,6 +136,11 @@ export function ParticipantList({ projectId, staffId, isLocked }: PanelProps) {
     }
   }
 
+  const handleRowClick = (participant: ParticipantRow) => {
+    setSelectedParticipant(participant)
+    setShowDetails(true)
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <SectionHeader
@@ -148,9 +172,9 @@ export function ParticipantList({ projectId, staffId, isLocked }: PanelProps) {
                       disabled={disabled}
                       className="rounded-full border px-4 py-1.5 text-[13px] font-medium transition-colors disabled:opacity-50"
                       style={{
-                        background: active ? T.burgundy : T.white,
+                        background: active ? T.ink : T.white,
                         color: active ? T.white : T.body,
-                        borderColor: active ? T.burgundy : T.stone,
+                        borderColor: active ? T.ink : T.stone,
                       }}
                     >
                       {m === "existing" ? "Existing client" : "New client"}
@@ -245,45 +269,104 @@ export function ParticipantList({ projectId, staffId, isLocked }: PanelProps) {
           }
         />
       ) : (
-        <div className="flex flex-col gap-3">
-          {participants.map((p: ParticipantRow) => (
-            <Card key={p._id}>
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex min-w-0 items-center gap-4">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-0 border-b border-hairline">
+                <TableHead className="w-[200px] border-0">Name</TableHead>
+                <TableHead className="w-[150px] border-0">Role</TableHead>
+                <TableHead className="w-[120px] border-0">Measurements</TableHead>
+                <TableHead className="text-right border-0">Garments</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {participants.map((p: ParticipantRow) => (
+                <TableRow
+                  key={p._id}
+                  onClick={() => handleRowClick(p)}
+                  className="cursor-pointer hover:bg-muted transition-colors border-0"
+                >
+                  <TableCell className="font-medium border-0 py-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="flex size-8 shrink-0 items-center justify-center rounded-full text-[12px] font-semibold"
+                        style={{ background: T.softIvory, color: T.ink }}
+                      >
+                        {initials(p.clientName)}
+                      </div>
+                      <span className="truncate">{p.clientName}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="border-0 py-4 px-6">{p.role}</TableCell>
+                  <TableCell className="border-0 py-4 px-6">
+                    {p.latestMeasurementVersion ? (
+                      <Badge>v{p.latestMeasurementVersion}</Badge>
+                    ) : (
+                      <Badge bg={T.amber} fg={T.white}>
+                        Pending
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right border-0 py-4 px-6">
+                    {p.garmentCount}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {/* Details Drawer */}
+      <Drawer open={showDetails} onOpenChange={setShowDetails} swipeDirection="right">
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>{selectedParticipant?.clientName}</DrawerTitle>
+            <DrawerDescription>Participant details</DrawerDescription>
+          </DrawerHeader>
+
+          {selectedParticipant && (
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex flex-col gap-5">
+                <div className="flex items-center gap-3">
                   <div
-                    className="flex size-11 shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
-                    style={{ background: T.ivory, color: T.burgundy }}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full text-[14px] font-semibold"
+                    style={{ background: T.softIvory, color: T.ink }}
                   >
-                    {initials(p.clientName)}
+                    {initials(selectedParticipant.clientName)}
                   </div>
-                  <div className="min-w-0">
-                    <p
-                      className="truncate text-[15px] font-medium"
-                      style={{ color: T.ink }}
-                    >
-                      {p.clientName}
+                  <div>
+                    <p className="text-[15px] font-semibold text-foreground">
+                      {selectedParticipant.clientName}
                     </p>
-                    <p className="truncate text-[13px]" style={{ color: T.muted }}>
-                      {p.role}
+                    <p className="text-[13px] text-muted-foreground">
+                      {selectedParticipant.role}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
-                  {p.latestMeasurementVersion ? (
-                    <Badge>{`Measurements v${p.latestMeasurementVersion}`}</Badge>
-                  ) : (
-                    <Badge bg={T.amber} fg={T.white}>
-                      No measurements
-                    </Badge>
-                  )}
-                  <Badge>{`${p.garmentCount} garment${p.garmentCount === 1 ? "" : "s"}`}</Badge>
-                </div>
+                <div className="h-px bg-border" />
+
+                <Field label="Client Type" value={selectedParticipant.clientType || "—"} />
+
+                <Field
+                  label="Latest Measurement"
+                  value={
+                    selectedParticipant.latestMeasurementVersion
+                      ? `Version ${selectedParticipant.latestMeasurementVersion}`
+                      : "Not yet recorded"
+                  }
+                />
+
+                <Field
+                  label="Garments"
+                  value={`${selectedParticipant.garmentCount} item${selectedParticipant.garmentCount !== 1 ? "s" : ""}`}
+                />
               </div>
-            </Card>
-          ))}
-        </div>
-      )}
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }

@@ -4,7 +4,7 @@ import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { CheckmarkCircle02Icon, InformationCircleIcon, Alert02Icon, MultiplicationSignCircleIcon, Loading03Icon } from "@hugeicons/core-free-icons"
 
-// Light theme is fixed — Warm Ivory is the product (ADR-026).
+// Solid color block toasts — no transparency.
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
@@ -27,17 +27,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
           <HugeiconsIcon icon={Loading03Icon} strokeWidth={2} className="size-4 animate-spin" />
         ),
       }}
-      style={
-        {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
-        } as React.CSSProperties
-      }
       toastOptions={{
         classNames: {
-          toast: "cn-toast",
+          toast: "!shadow-lg !border-0 !rounded-lg",
+          success: "!bg-block-mint !text-ink",
+          error: "!bg-block-coral !text-ink",
+          warning: "!bg-block-cream !text-ink",
+          info: "!bg-block-lilac !text-ink",
+          loading: "!bg-block-lime !text-ink",
         },
       }}
       {...props}

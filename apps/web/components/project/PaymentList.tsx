@@ -5,7 +5,7 @@
 // the backend exposes no update/delete mutation either. A correction is recorded
 // as a NEW payment of type "Refund".
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@convex/_generated/api"
 import { toast } from "sonner"
@@ -27,6 +27,7 @@ import {
   parseKES,
   fmtDate,
 } from "./_kit"
+import { FinancialsPDFGenerator } from "@/components/FinancialsPDFGenerator"
 
 const inputClass =
   "h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
@@ -44,9 +45,9 @@ function todayInput(): string {
 function typeColors(type: PaymentType): { bg: string; fg: string } {
   switch (type) {
     case "Deposit":
-      return { bg: T.burgundy, fg: T.white }
+      return { bg: "hsl(45 93% 58%)", fg: T.white }     // Yellow for deposit
     case "Installment":
-      return { bg: T.gold, fg: T.white }
+      return { bg: "hsl(220 30% 40%)", fg: T.white }    // Blue for installment
     case "Balance":
       return { bg: T.green, fg: T.white }
     case "Refund":
@@ -57,6 +58,9 @@ function typeColors(type: PaymentType): { bg: string; fg: string } {
 export function PaymentList({ projectId, staffId, isLocked }: PanelProps) {
   const payments = useQuery(api.payments.listByProject, { projectId })
   const summary = useQuery(api.payments.summaryByProject, { projectId })
+  const project = useQuery(api.projects.getById, { id: projectId })
+  const client = useQuery(api.clients.getById, { id: project?.primaryClientId ?? "skip" as Id<"clients"> })
+  const quotation = useQuery(api.quotations.getByProject, { projectId })
   const recordPayment = useMutation(api.payments.record)
 
   const [isOpen, setIsOpen] = useState(false)
@@ -67,6 +71,29 @@ export function PaymentList({ projectId, staffId, isLocked }: PanelProps) {
   const [paidAt, setPaidAt] = useState(todayInput())
 
   const disabled = isLocked || !staffId || busy
+
+  // Transform payment records for PDF generator
+  const paymentRecords = useMemo(() => {
+    if (!payments) return [];
+    return payments.map(p => ({
+      date: new Date(p.paidAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+      amount: p.amount,
+      type: p.type === "Deposit" ? "deposit" as const : ("payment" as const),
+      method: "—",
+      reference: undefined,
+    }))
+  }, [payments])
+
+  // Transform quotation items for PDF generator
+  const quotationItems = useMemo(() => {
+    if (!quotation?.items) return [];
+    return quotation.items.map(item => ({
+      description: item.description,
+      qty: item.quantity || 1,
+      unitPrice: item.unitPrice || 0,
+      lineTotal: (item.quantity || 1) * (item.unitPrice || 0),
+    }))
+  }, [quotation])
 
   if (payments === undefined || summary === undefined) return <PanelLoading />
 
@@ -114,12 +141,34 @@ export function PaymentList({ projectId, staffId, isLocked }: PanelProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* ── Summary strip ────────────────────────────────────────────── */}
+      {/* ── PDF Download Buttons ─────────────────────────────────────────── */}
+      {quotation && (
+        <Card>
+          <p
+            className="mb-4 text-[11px] font-bold uppercase tracking-[0.08em]"
+            style={{ color: T.amber }}
+          >
+            Documents
+          </p>
+          <FinancialsPDFGenerator
+            projectName={project?.title ?? "Project"}
+            projectType={project?.type ?? ""}
+            clientName={client?.name ?? "Client"}
+            quotationItems={quotationItems}
+            quotationTotal={quotationItems.reduce((sum, item) => sum + item.lineTotal, 0)}
+            depositRequired={quotation?.depositAmount || 0}
+            validUntil={quotation?.validUntil ? new Date(quotation.validUntil).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : ""}
+            payments={paymentRecords}
+            balance={summary?.balance ?? 0}
+            currency="KES"
+          />
+        </Card>
+      )}
       <Card>
         <div className="mb-5 flex items-center justify-between gap-3">
           <p
             className="text-[11px] font-bold uppercase tracking-[0.08em]"
-            style={{ color: T.gold }}
+            style={{ color: T.amber }}
           >
             Ledger
           </p>

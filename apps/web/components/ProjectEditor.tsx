@@ -12,6 +12,7 @@ import type { Doc, Id } from "@convex/_generated/dataModel"
 import type { ProjectStatus, ProjectType } from "@/lib/types"
 import type { ProjectTabId } from "@/components/ProjectSidebar"
 
+import { ProjectHeader } from "@/components/ProjectHeader"
 import { OverviewPanel } from "@/components/project/OverviewPanel"
 import { ConsultationPanel } from "@/components/project/ConsultationPanel"
 import { DesignPanel } from "@/components/project/DesignPanel"
@@ -125,86 +126,18 @@ export function ProjectEditor({ project, activeTab }: ProjectEditorProps) {
     }
   }
 
-  const panelProps = { projectId, staffId, isLocked }
+  const panelProps = { projectId, staffId, isLocked, handleArchive, handleDelete }
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* ── Header (no tabs — navigation is in the ProjectSidebar) ─────── */}
-      <header className="shrink-0 border-b border-border bg-card px-8 py-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-              {TYPE_LABEL[project.type]}
-              {client ? ` · ${client.name}` : ""}
-            </p>
-
-            <div className="flex items-center gap-3">
-              <h1 className="truncate text-[28px] font-semibold leading-tight text-foreground">
-                {project.title}
-              </h1>
-              <span
-                className="shrink-0 rounded-full px-3 py-1 text-[12px] font-medium"
-                style={{
-                  background: STATUS_BG[project.status],
-                  color: STATUS_FG[project.status],
-                }}
-              >
-                {STATUS_LABEL[project.status]}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-3 pt-1">
-            {/* Balance at a glance */}
-            {paymentSummary?.hasQuotation && (
-              <div className="text-right">
-                <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                  Balance
-                </p>
-                <p className="font-mono text-[18px] font-semibold tabular-nums text-foreground">
-                  KES {(paymentSummary.balance / 100).toLocaleString()}
-                </p>
-              </div>
-            )}
-
-            <button
-              onClick={() => setShareOpen(true)}
-              className="flex h-[40px] items-center gap-2 rounded-xl border border-border px-4 text-[14px] font-medium text-foreground transition-colors hover:bg-muted"
-            >
-              <HugeiconsIcon icon={Share01Icon} className="size-4" />
-              Share
-            </button>
-
-            <select
-              value={project.status}
-              onChange={(e) => handleStatusChange(e.target.value as ProjectStatus)}
-              className="h-[40px] rounded-xl border border-border bg-card px-4 text-[14px] font-medium text-foreground outline-none"
-            >
-              {(Object.keys(STATUS_LABEL) as ProjectStatus[]).map((s) => (
-                <option key={s} value={s}>
-                  {STATUS_LABEL[s]}
-                </option>
-              ))}
-            </select>
-
-            {/* Administrative actions */}
-            {project.status !== "Archived" && (
-              <button
-                onClick={handleArchive}
-                className="h-[40px] rounded-xl border border-border px-4 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted"
-              >
-                Archive
-              </button>
-            )}
-            <button
-              onClick={handleDelete}
-              className="h-[40px] rounded-xl border border-border px-4 text-[13px] font-medium text-destructive transition-colors hover:bg-destructive/10"
-            >
-              Remove
-            </button>
-          </div>
-        </div>
-      </header>
+      <ProjectHeader
+        project={project}
+        clientName={client?.name ?? null}
+        balance={paymentSummary?.balance ?? 0}
+        hasQuotation={paymentSummary?.hasQuotation ?? false}
+        onStatusChange={handleStatusChange}
+        onShare={() => setShareOpen(true)}
+      />
 
       {/* ── Panel body ──────────────────────────────────────────────────── */}
       <main className="flex-1 overflow-y-auto bg-background px-8 py-8">
@@ -227,16 +160,16 @@ export function ProjectEditor({ project, activeTab }: ProjectEditorProps) {
                 {...panelProps}
               />
 
-              {/* Consultation & Design as summary cards */}
+              {/* Consultation & Design */}
               <div className="grid gap-6 lg:grid-cols-2">
-                <div className="rounded-xs border border-border bg-card p-6">
+                <div>
                   <h3 className="mb-4 text-[16px] font-semibold text-foreground">
                     Consultation
                   </h3>
                   <ConsultationPanel {...panelProps} />
                 </div>
 
-                <div className="rounded-xs border border-border bg-card p-6">
+                <div>
                   <h3 className="mb-4 text-[16px] font-semibold text-foreground">
                     Design
                   </h3>

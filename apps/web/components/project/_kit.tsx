@@ -15,21 +15,19 @@ export interface PanelProps {
   isLocked: boolean
 }
 
-// ── Tokens ────────────────────────────────────────────────────────────────
+// ── Tokens — Figma monochrome system ─────────────────────────────────────
 export const T = {
-  ink: "hsl(0 0% 9%)",
-  muted: "hsl(0 0% 45%)",
-  body: "hsl(0 0% 34%)",
-  gold: "hsl(45 93% 58%)",
-  burgundy: "hsl(345 60% 28%)",
-  stone: "hsl(0 0% 90%)",
-  white: "#FFFFFF",
-  ivory: "hsl(0 0% 100%)",
-  softIvory: "hsl(0 0% 96%)",
-  inputBorder: "hsl(0 0% 90%)",
-  green: "hsl(140 38% 30%)",
-  amber: "hsl(38 62% 45%)",
-  danger: "hsl(0 84% 60%)",
+  ink: "hsl(0 0% 9%)",           // Black for text
+  muted: "hsl(0 0% 45%)",        // Mid-gray for secondary text
+  body: "hsl(0 0% 34%)",         // Body text gray
+  stone: "hsl(0 0% 90%)",        // Hairline borders
+  white: "#FFFFFF",              // Pure white
+  ivory: "hsl(0 0% 100%)",       // Canvas background
+  softIvory: "hsl(0 0% 96%)",    // Soft surface
+  inputBorder: "hsl(0 0% 90%)",  // Input borders
+  green: "hsl(140 71% 40%)",     // Semantic success
+  amber: "hsl(38 62% 45%)",      // Semantic warning
+  danger: "hsl(0 84% 60%)",      // Semantic error
   cardShadow: "0 2px 8px rgba(20,20,19,.06)",
 } as const
 
@@ -51,8 +49,7 @@ export function Card({
 }) {
   return (
     <div
-      className={`rounded-xs border border-border bg-card shadow-sm ${padded ? "p-6" : ""} ${className}`}
-      style={{ boxShadow: T.cardShadow }}
+      className={`rounded-lg border border-hairline bg-card ${padded ? "p-6" : ""} ${className}`}
     >
       {children}
     </div>
@@ -73,7 +70,7 @@ export function SectionHeader({
     <div className="mb-5 flex items-end justify-between gap-4">
       <div>
         {eyebrow && (
-          <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
+          <p className="mb-1.5 eyebrow text-ink">
             {eyebrow}
           </p>
         )}
@@ -106,7 +103,7 @@ export function Field({
 }) {
   return (
     <div>
-      <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+      <p className="mb-1.5 text-[13px] font-medium uppercase tracking-[0.04em] text-muted-foreground">
         {label}
       </p>
       <p
@@ -226,7 +223,7 @@ export function EmptyState({
         </div>
       )}
       {eyebrow && (
-        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
+        <p className="mb-2 eyebrow text-ink">
           {eyebrow}
         </p>
       )}

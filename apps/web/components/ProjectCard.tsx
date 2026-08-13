@@ -14,20 +14,20 @@ interface ProjectCardProps {
   onClick: () => void
 }
 
-// ── Status badge colours per spec §7 ─────────────────────────────────────
+// ── Status badge colours — Figma semantic colors ─────────────────────────
 const STATUS_BG: Record<ProjectStatus, string> = {
-  Active:    "hsl(345 60% 28%)",
-  Draft:     "hsl(45 93% 58%)",
-  Completed: "hsl(140 38% 30%)",
-  OnHold:    "hsl(0 0% 46%)",
-  Archived:  "hsl(0 0% 91%)",
+  Active:    "hsl(140 71% 40%)",  // Green for active
+  Draft:     "hsl(45 93% 58%)",   // Yellow/gold for draft
+  Completed: "hsl(220 30% 40%)",  // Blue for completed
+  OnHold:    "hsl(30 60% 50%)",   // Orange for on hold
+  Archived:  "hsl(0 0% 60%)",     // Gray for archived
 }
 const STATUS_TEXT: Record<ProjectStatus, string> = {
   Active:    "#FFFFFF",
   Draft:     "#FFFFFF",
   Completed: "#FFFFFF",
   OnHold:    "#FFFFFF",
-  Archived:  "hsl(40 5% 10%)",
+  Archived:  "#FFFFFF",
 }
 const STATUS_LABELS: Record<ProjectStatus, string> = {
   Draft:     "Draft",
@@ -71,10 +71,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     return (
       <button
         onClick={onClick}
-        className="flex w-full items-center gap-4 rounded-xs bg-card p-4 text-left transition-colors"
+        className="flex w-full items-center gap-4 rounded-lg border border-hairline bg-canvas p-4 text-left transition-all hover:shadow-soft"
       >
         {/* Thumbnail */}
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md">
           <Image
             src={TYPE_IMAGES[project.type]}
             alt=""
@@ -86,17 +86,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-brand-gold">
+          <p className="eyebrow text-ink">
             {TYPE_LABELS[project.type]}
           </p>
-          <p className="font-heading truncate text-[16px] font-semibold text-foreground">
+          <p className="body-sm font-semibold text-foreground truncate">
             {project.title}
           </p>
         </div>
 
         {/* Status badge */}
         <span
-          className="shrink-0 rounded-full px-4 py-1 text-[12px] font-medium"
+          className="shrink-0 rounded-full px-4 py-1.5 text-[12px] font-medium"
           style={{
             background: STATUS_BG[project.status],
             color: STATUS_TEXT[project.status],
@@ -108,15 +108,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     )
   }
 
-  // ── Grid view — spec §9 ─────────────────────────────────────────────────
+  // ── Grid view — Figma design system ─────────────────────────────────────
   return (
     <button
       onClick={onClick}
-      className="group flex w-full flex-col overflow-hidden rounded-xs bg-card text-left transition-colors hover:bg-secondary/60"
+      className="group flex w-full flex-col overflow-hidden rounded-lg border border-hairline bg-canvas text-left transition-all hover:shadow-soft"
       style={{ minHeight: "360px" }}
     >
       {/* ── Hero Image — 170px, full width, object-cover ─────────────── */}
-      <div className="relative h-[170px] w-full overflow-hidden rounded-xs">
+      <div className="relative h-[170px] w-full overflow-hidden rounded-lg">
         <Image
           src={TYPE_IMAGES[project.type]}
           alt={`${TYPE_LABELS[project.type]} project photography`}
@@ -142,26 +142,29 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         </div>
       </div>
 
-      {/* ── Content area ─────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col pt-3">
-        {/* Project name */}
-        <h3 className="font-heading mb-1 text-[28px] font-semibold leading-[36px] text-foreground">
+      {/* ── Content area — padding per Figma spec ─────────────────────────── */}
+      <div className="flex flex-1 flex-col px-6 py-4">
+        {/* Eyebrow — figmaMono uppercase, positive tracking */}
+        <p className="eyebrow text-ink mb-2">
+          {TYPE_LABELS[project.type]}
+        </p>
+
+        {/* Project name — headline weight */}
+        <h3 className="headline text-foreground mb-3">
           {project.title}
         </h3>
 
-        {/* Description — max 2 lines */}
+        {/* Description — body copy, weight 330 */}
         {project.notes && (
-          <p className="mb-auto line-clamp-2 text-[14px] leading-[22px] text-muted-foreground">
+          <p className="body-sm text-muted-foreground mb-auto line-clamp-2">
             {project.notes}
           </p>
         )}
 
-        {/* ── Footer — client ────────────────────────────────────── */}
-        <div className="mt-3 flex items-center gap-4 border-t border-border pt-3 text-[12px] text-muted-foreground">
-          <div className="flex min-w-0 items-center gap-1.5">
-            <HugeiconsIcon icon={Users} className="size-4 shrink-0" />
-            <span className="truncate">{primaryClientName}</span>
-          </div>
+        {/* ── Footer — client with hairline divider ────────────────────────── */}
+        <div className="mt-4 flex items-center gap-3 border-t border-hairline pt-4 text-[12px] text-muted-foreground">
+          <HugeiconsIcon icon={Users} className="size-4 shrink-0" />
+          <span className="truncate font-[330]">{primaryClientName}</span>
         </div>
       </div>
     </button>

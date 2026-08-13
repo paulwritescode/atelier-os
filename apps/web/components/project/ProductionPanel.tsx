@@ -12,20 +12,25 @@ import {
   Card,
   SectionHeader,
   FieldLabel,
-  Field,
   PrimaryButton,
   SecondaryButton,
   Badge,
   PanelLoading,
   EmptyState,
   Blocked,
-  fmtDateTime,
 } from "./_kit"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 const inputClass =
-  "h-[44px] w-full rounded-xl border px-4 text-[14px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
+  "h-[44px] w-full rounded-lg border px-4 text-[14px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
 
-// ── The 9 production stages, in order (Appendix §Production) ─────────────
 type Stage =
   | "DesignApproved"
   | "FabricReady"
@@ -73,9 +78,9 @@ function statusColors(status: GarmentStatus): { bg: string; fg: string } {
     case "Pending":
       return { bg: T.softIvory, fg: T.body }
     case "InProduction":
-      return { bg: T.burgundy, fg: T.white }
+      return { bg: T.ink, fg: T.white }
     case "ReadyForFitting":
-      return { bg: T.gold, fg: T.white }
+      return { bg: T.amber, fg: T.white }
     case "ReadyForDelivery":
       return { bg: T.amber, fg: T.white }
     case "Delivered":
@@ -96,13 +101,11 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
   const [participantId, setParticipantId] = useState("")
   const [garmentType, setGarmentType] = useState("")
   const [notes, setNotes] = useState("")
-  const [stageNotes, setStageNotes] = useState<Record<string, string>>({})
 
   const disabled = isLocked || !staffId || busy
 
   if (garments === undefined || participants === undefined) return <PanelLoading />
 
-  // ── Gate: garments belong to a participant ─────────────────────────────
   if (participants.length === 0) {
     return (
       <Blocked
@@ -112,7 +115,6 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
     )
   }
 
-  // A garment must reference a measurement snapshot.
   const measurable = participants.filter((p) => p.latestMeasurementId !== null)
   const unmeasured = participants.filter((p) => p.latestMeasurementId === null)
 
@@ -155,14 +157,11 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
     if (!staffId) return
     setBusy(true)
     try {
-      const note = stageNotes[garmentId]?.trim()
       await updateStage({
         garmentId,
         stage,
-        notes: note || undefined,
         updatedBy: staffId,
       })
-      setStageNotes((prev) => ({ ...prev, [garmentId]: "" }))
       toast.success(`Stage set to ${stageLabel(stage)}.`)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not update the stage.")
@@ -185,7 +184,7 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Card>
         <SectionHeader
           eyebrow="Step 6"
@@ -212,7 +211,7 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
 
         {isOpen && (
           <div
-            className="rounded-xs border p-4"
+            className="rounded-lg border p-4"
             style={{ borderColor: T.stone, background: T.softIvory }}
           >
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -251,7 +250,7 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
               <FieldLabel>Notes (optional)</FieldLabel>
               <textarea
                 rows={3}
-                className="w-full resize-none rounded-xl border px-4 py-3 text-[14px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full resize-none rounded-lg border px-4 py-3 text-[14px] outline-none disabled:cursor-not-allowed disabled:opacity-50"
                 style={inputStyle}
                 value={notes}
                 disabled={disabled}
@@ -279,110 +278,73 @@ export function ProductionPanel({ projectId, staffId, isLocked }: PanelProps) {
           body="Add a garment for each participant to track it through the nine production stages."
         />
       ) : (
-        garments.map((g) => {
-          const garmentId = g._id as Id<"garments">
-          const currentIndex = STAGES.findIndex((s) => s.value === g.currentStage)
-          const colors = statusColors(g.status)
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[150px]">Garment</TableHead>
+                <TableHead className="w-[150px]">Participant</TableHead>
+                <TableHead className="w-[120px]">Status</TableHead>
+                <TableHead className="w-[150px]">Current Stage</TableHead>
+                <TableHead className="w-[140px]">Move to Stage</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {garments.map((g) => {
+                const garmentId = g._id as Id<"garments">
+                const colors = statusColors(g.status)
 
-          return (
-            <Card key={garmentId}>
-              <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3
-                    className="font-heading text-[20px] font-semibold leading-tight"
-                    style={{ color: T.ink }}
-                  >
-                    {g.type}
-                  </h3>
-                  <p className="mt-1 text-[13px]" style={{ color: T.muted }}>
-                    {g.participantName ?? "Unknown"}
-                    {g.participantRole ? ` · ${g.participantRole}` : ""}
-                  </p>
-                </div>
-                <Badge bg={colors.bg} fg={colors.fg}>
-                  {GARMENT_STATUSES.find((s) => s.value === g.status)?.label ?? g.status}
-                </Badge>
-              </div>
-
-              {/* ── Stage progress strip ─────────────────────────────── */}
-              <div className="mb-5 flex flex-wrap gap-1.5">
-                {STAGES.map((s, i) => {
-                  const done = currentIndex >= 0 && i <= currentIndex
-                  return (
-                    <span
-                      key={s.value}
-                      className="rounded-full px-2.5 py-1 text-[11px] font-medium"
-                      style={{
-                        background: done ? T.burgundy : T.softIvory,
-                        color: done ? T.white : T.muted,
-                      }}
-                    >
-                      {s.label}
-                    </span>
-                  )
-                })}
-              </div>
-
-              <div className="mb-5 grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <Field label="Current Stage" value={stageLabel(g.currentStage)} />
-                <Field label="Stage Updated" value={fmtDateTime(g.stageUpdatedAt)} />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <FieldLabel>Move to Stage</FieldLabel>
-                  <select
-                    className={inputClass}
-                    style={inputStyle}
-                    value={g.currentStage ?? ""}
-                    disabled={disabled}
-                    onChange={(e) => handleStage(garmentId, e.target.value as Stage)}
-                  >
-                    <option value="" disabled>
-                      Select a stage…
-                    </option>
-                    {STAGES.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <FieldLabel>Garment Status</FieldLabel>
-                  <select
-                    className={inputClass}
-                    style={inputStyle}
-                    value={g.status}
-                    disabled={disabled}
-                    onChange={(e) => handleStatus(garmentId, e.target.value as GarmentStatus)}
-                  >
-                    {GARMENT_STATUSES.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <FieldLabel>Stage Note (optional, applied on next stage change)</FieldLabel>
-                <input
-                  type="text"
-                  className={inputClass}
-                  style={inputStyle}
-                  value={stageNotes[garmentId] ?? ""}
-                  disabled={disabled}
-                  placeholder="e.g. Second fitting adjustment required"
-                  onChange={(e) =>
-                    setStageNotes((prev) => ({ ...prev, [garmentId]: e.target.value }))
-                  }
-                />
-              </div>
-            </Card>
-          )
-        })
+                return (
+                  <TableRow key={garmentId}>
+                    <TableCell className="font-medium">{g.type}</TableCell>
+                    <TableCell>
+                      <div className="text-sm font-medium">{g.participantName ?? "Unknown"}</div>
+                      {g.participantRole && (
+                        <div className="text-xs" style={{ color: T.muted }}>
+                          {g.participantRole}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <select
+                        className="h-8 rounded-md border text-xs outline-none"
+                        style={inputStyle}
+                        value={g.status}
+                        disabled={disabled}
+                        onChange={(e) => handleStatus(garmentId, e.target.value as GarmentStatus)}
+                      >
+                        {GARMENT_STATUSES.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </TableCell>
+                    <TableCell className="text-sm">{stageLabel(g.currentStage)}</TableCell>
+                    <TableCell>
+                      <select
+                        className="h-8 rounded-md border text-xs outline-none"
+                        style={inputStyle}
+                        value={g.currentStage ?? ""}
+                        disabled={disabled}
+                        onChange={(e) => handleStage(garmentId, e.target.value as Stage)}
+                      >
+                        <option value="" disabled>
+                          Change…
+                        </option>
+                        {STAGES.map((s) => (
+                          <option key={s.value} value={s.value}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
       )}
     </div>
   )

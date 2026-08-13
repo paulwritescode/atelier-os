@@ -12,8 +12,11 @@ import {
   Calendar,
   Clock,
   FileText,
+  Archive02Icon,
+  Cancel01Icon,
 } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
+import type { ProjectStatus } from "@/lib/types"
 
 // ── Tab definitions for the project sidebar ───────────────────────────────────
 export type ProjectTabId =
@@ -49,19 +52,25 @@ const NAV_ITEMS: SidebarNavItem[] = [
 interface ProjectSidebarProps {
   projectTitle: string
   projectType: string
+  projectStatus: ProjectStatus
   activeTab: ProjectTabId
   onTabChange: (tab: ProjectTabId) => void
   collapsed: boolean
   onToggleCollapse: () => void
+  onArchive?: () => void
+  onRemove?: () => void
 }
 
 export function ProjectSidebar({
   projectTitle,
   projectType,
+  projectStatus,
   activeTab,
   onTabChange,
   collapsed,
   onToggleCollapse,
+  onArchive,
+  onRemove,
 }: ProjectSidebarProps) {
   const router = useRouter()
 
@@ -169,6 +178,45 @@ export function ProjectSidebar({
           })}
         </div>
       </nav>
+
+      {/* ── Administrative Actions (Archive, Remove) ──────────────────────── */}
+      <div className="border-t border-border">
+        <div
+          className={cn(
+            "space-y-1 transition-all duration-300",
+            collapsed ? "p-1" : "p-2"
+          )}
+        >
+          {projectStatus !== "Archived" && onArchive && (
+            <button
+              onClick={onArchive}
+              className={cn(
+                "flex w-full items-center rounded-lg text-sm font-medium transition-all duration-200",
+                collapsed ? "justify-center px-2 py-2" : "gap-3 px-3 py-2",
+                "text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+              title={collapsed ? "Archive" : undefined}
+            >
+              <HugeiconsIcon icon={Archive02Icon} className="size-4 shrink-0" />
+              {!collapsed && <span className="truncate">Archive</span>}
+            </button>
+          )}
+          {onRemove && (
+            <button
+              onClick={onRemove}
+              className={cn(
+                "flex w-full items-center rounded-lg text-sm font-medium transition-all duration-200",
+                collapsed ? "justify-center px-2 py-2" : "gap-3 px-3 py-2",
+                "text-destructive hover:bg-destructive/10"
+              )}
+              title={collapsed ? "Remove" : undefined}
+            >
+              <HugeiconsIcon icon={Cancel01Icon} className="size-4 shrink-0" />
+              {!collapsed && <span className="truncate">Remove</span>}
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

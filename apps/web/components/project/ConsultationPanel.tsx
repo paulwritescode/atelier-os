@@ -9,6 +9,7 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "@convex/_generated/api"
 import { toast } from "sonner"
 import type { Id } from "@convex/_generated/dataModel"
+import { ColorBlockSection } from "../ColorBlockSection"
 import {
   type PanelProps,
   T,
@@ -94,15 +95,21 @@ export function ConsultationPanel({ projectId, staffId, isLocked }: PanelProps) 
   // ── No consultation yet → creation form ─────────────────────────────────
   if (!consultation) {
     return (
-      <Card>
-        <SectionHeader
-          eyebrow="Step 1"
-          title="Record the consultation"
-        />
-        <p className="mb-6 text-[14px] leading-[22px]" style={{ color: T.muted }}>
-          Every commission begins here. Capture what the client asked for, then mark the
-          consultation complete to unlock the Design step.
-        </p>
+      <div className="space-y-6">
+        <ColorBlockSection variant="lilac">
+          <div className="max-w-[640px]">
+            <h2 className="headline mb-4">Record the consultation</h2>
+            <p className="body-lg">
+              Every commission begins here. Capture what the client asked for, then mark the
+              consultation complete to unlock the Design step.
+            </p>
+          </div>
+        </ColorBlockSection>
+
+        <Card>
+          <SectionHeader
+            title="Consultation Details"
+          />
 
         <div className="flex flex-col gap-5">
           <div>
@@ -180,62 +187,89 @@ export function ConsultationPanel({ projectId, staffId, isLocked }: PanelProps) 
           </div>
         </div>
       </Card>
+      </div>
     )
   }
 
   // ── Consultation exists → read-only summary ─────────────────────────────
   const isComplete = Boolean(consultation.completedAt)
 
-  return (
-    <Card>
-      <SectionHeader
-        eyebrow="Step 1"
-        title="Consultation"
-        action={
-          isComplete ? (
-            <Badge bg={T.green} fg={T.white}>
-              Completed
-            </Badge>
-          ) : undefined
-        }
-      />
-
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <Field label="Requirements" value={consultation.requirements} />
-        </div>
-        <div className="sm:col-span-2">
-          <Field label="Style Notes" value={consultation.styleNotes || "—"} />
-        </div>
-        <Field
-          label="Budget"
-          value={
-            typeof consultation.budget === "number" ? fmtKES(consultation.budget) : "—"
-          }
-        />
-        <Field label="Timeline" value={consultation.timeline || "—"} />
-        <div className="sm:col-span-2">
+  // ── COMPLETED: just data fields with cream color block bg ───────────────
+  if (isComplete) {
+    return (
+      <div className="bg-block-cream rounded-2xl p-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Field label="Requirements" value={consultation.requirements} />
+          </div>
+          <div className="sm:col-span-2">
+            <Field label="Style Notes" value={consultation.styleNotes || "—"} />
+          </div>
           <Field
-            label="References"
+            label="Budget"
             value={
-              consultation.references.length > 0 ? (
-                <ul className="flex flex-col gap-1">
-                  {consultation.references.map((ref: string, i: number) => (
-                    <li key={i} className="truncate text-[15px]">
-                      {ref}
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                "—"
-              )
+              typeof consultation.budget === "number" ? fmtKES(consultation.budget) : "—"
             }
           />
+          <Field label="Timeline" value={consultation.timeline || "—"} />
+          <div className="sm:col-span-2">
+            <FieldLabel>References</FieldLabel>
+            {consultation.references.length > 0 ? (
+              <ul className="flex flex-col gap-1">
+                {consultation.references.map((ref: string, i: number) => (
+                  <li key={i} className="truncate text-[15px] text-foreground">
+                    {ref}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[15px] text-foreground">—</p>
+            )}
+          </div>
+          <Field label="Completed" value={fmtDate(consultation.completedAt)} />
         </div>
-        <Field label="Completed" value={fmtDate(consultation.completedAt)} />
       </div>
+    )
+  }
 
-      {!isComplete && (
+  // ── NOT COMPLETED: summary with completion action ───────────────────────
+  return (
+    <div className="space-y-6">
+      <div className="bg-block-cream rounded-2xl p-8">
+        <div className="flex items-center justify-between max-w-full mb-6">
+          <h2 className="headline">Consultation</h2>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <Field label="Requirements" value={consultation.requirements} />
+          </div>
+          <div className="sm:col-span-2">
+            <Field label="Style Notes" value={consultation.styleNotes || "—"} />
+          </div>
+          <Field
+            label="Budget"
+            value={
+              typeof consultation.budget === "number" ? fmtKES(consultation.budget) : "—"
+            }
+          />
+          <Field label="Timeline" value={consultation.timeline || "—"} />
+          <div className="sm:col-span-2">
+            <FieldLabel>References</FieldLabel>
+            {consultation.references.length > 0 ? (
+              <ul className="flex flex-col gap-1">
+                {consultation.references.map((ref: string, i: number) => (
+                  <li key={i} className="truncate text-[15px] text-foreground">
+                    {ref}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[15px] text-foreground">—</p>
+            )}
+          </div>
+        </div>
+
         <div className="mt-8 border-t pt-6" style={{ borderColor: T.stone }}>
           <p className="mb-4 text-[14px] leading-[22px]" style={{ color: T.muted }}>
             Completing the consultation is what unlocks the Design step.
@@ -244,7 +278,7 @@ export function ConsultationPanel({ projectId, staffId, isLocked }: PanelProps) 
             {saving ? "Saving…" : "Mark Consultation Complete"}
           </PrimaryButton>
         </div>
-      )}
-    </Card>
+      </div>
+    </div>
   )
 }

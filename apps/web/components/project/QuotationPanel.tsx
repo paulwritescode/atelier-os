@@ -51,9 +51,9 @@ function lineTotalMinor(item: DraftItem): number {
 function statusColors(status: string): { bg: string; fg: string } {
   switch (status) {
     case "Draft":
-      return { bg: T.gold, fg: T.white }
+      return { bg: "hsl(45 93% 58%)", fg: T.white }  // Yellow for draft
     case "Sent":
-      return { bg: T.burgundy, fg: T.white }
+      return { bg: "hsl(220 30% 40%)", fg: T.white } // Blue for sent
     case "Accepted":
       return { bg: T.green, fg: T.white }
     case "Rejected":
@@ -379,7 +379,7 @@ export function QuotationPanel({ projectId, staffId, isLocked }: PanelProps) {
       <Card>
         <p
           className="mb-4 text-[11px] font-bold uppercase tracking-[0.08em]"
-          style={{ color: T.gold }}
+          style={{ color: T.amber }}
         >
           Workflow
         </p>

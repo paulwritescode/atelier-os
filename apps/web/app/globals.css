@@ -39,12 +39,39 @@
   --color-sidebar-border: hsl(var(--sidebar-border));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
 
+  /* Figma Design System Colors */
+  --color-canvas: hsl(var(--canvas));
+  --color-inverse-canvas: hsl(var(--inverse-canvas));
+  --color-surface-soft: hsl(var(--surface-soft));
+  --color-hairline: hsl(var(--hairline));
+  --color-block-lime: hsl(var(--block-lime));
+  --color-block-lilac: hsl(var(--block-lilac));
+  --color-block-cream: hsl(var(--block-cream));
+  --color-block-mint: hsl(var(--block-mint));
+  --color-block-pink: hsl(var(--block-pink));
+  --color-block-coral: hsl(var(--block-coral));
+  --color-block-navy: hsl(var(--block-navy));
+
   /* Radius */
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-xs: 2px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 50px;
+  --radius-full: 9999px;
+  --radius: 0.5rem;
+
+  /* Spacing */
+  --spacing-hair: 1px;
+  --spacing-xxs: 4px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  --spacing-section: 96px;
 }
 
 /* ── Light mode ─────────────────────────────────────────────────────────── */
@@ -55,8 +82,8 @@
   --card-foreground: 0 0% 9%;
   --popover: 0 0% 100%;
   --popover-foreground: 0 0% 9%;
-  --primary: 345 60% 28%;
-  --primary-foreground: 0 0% 98%;
+  --primary: 0 0% 9%;              /* Figma black primary */
+  --primary-foreground: 0 0% 100%; /* White on black */
   --secondary: 0 0% 96%;
   --secondary-foreground: 0 0% 9%;
   --muted: 0 0% 96%;
@@ -67,26 +94,56 @@
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 90%;
   --input: 0 0% 90%;
-  --ring: 345 60% 28%;
+  --ring: 0 0% 9%;                 /* Black focus ring */
   --radius: 0.5rem;
 
   /* Sidebar */
   --sidebar: 0 0% 98%;
   --sidebar-foreground: 0 0% 9%;
-  --sidebar-primary: 345 60% 28%;
-  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-primary: 0 0% 9%;
+  --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 0 0% 96%;
   --sidebar-accent-foreground: 0 0% 9%;
   --sidebar-border: 0 0% 90%;
-  --sidebar-ring: 345 60% 28%;
+  --sidebar-ring: 0 0% 9%;
 
   /* Glass */
   --glass-bg: 0 0% 98%;
   --glass-hover: 0 0% 96%;
   --glass-border: 0 0% 90%;
 
-  /* Brand */
-  --brand-gold: 45 93% 58%;
+  /* Brand — Figma monochrome system */
+  --brand-primary: 0 0% 9%;        /* Black for primary CTAs */
+  --brand-on-primary: 0 0% 100%;   /* White on black */
+
+  /* Status Colors — Semantic, not branded */
+  --status-draft: 45 93% 58%;      /* Yellow/gold for draft */
+  --status-active: 140 71% 40%;    /* Green for active */
+  --status-onhold: 30 60% 50%;     /* Orange for on hold */
+  --status-completed: 220 30% 40%; /* Blue for completed */
+  --status-archived: 0 0% 60%;     /* Gray for archived */
+
+  /* Figma Design System — Light */
+  --canvas: 0 0% 100%;
+  --inverse-canvas: 0 0% 9%;
+  --surface-soft: 0 0% 96%;
+  --hairline: 0 0% 90%;
+  --hairline-soft: 0 0% 95%;
+  --ink: 0 0% 9%;
+  --inverse-ink: 0 0% 98%;
+  --on-inverse-soft: 0 0% 100%;
+  --accent-magenta: 330 100% 55%;
+  --semantic-success: 140 71% 40%;
+  --overlay-scrim: 0 0% 0%;
+
+  /* Color Blocks */
+  --block-lime: 85 90% 75%;
+  --block-lilac: 270 60% 80%;
+  --block-cream: 40 90% 90%;
+  --block-mint: 160 70% 75%;
+  --block-pink: 330 80% 85%;
+  --block-coral: 15 85% 70%;
+  --block-navy: 220 30% 20%;
 }
 
 /* ── Dark mode ──────────────────────────────────────────────────────────── */
@@ -97,8 +154,8 @@
   --card-foreground: 0 0% 98%;
   --popover: 0 0% 6%;
   --popover-foreground: 0 0% 98%;
-  --primary: 345 60% 32%;
-  --primary-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;             /* Inverted: white primary in dark mode */
+  --primary-foreground: 0 0% 9%;   /* Black on white */
   --secondary: 300 2% 10%;
   --secondary-foreground: 0 0% 98%;
   --muted: 0 0% 15%;
@@ -109,41 +166,127 @@
   --destructive-foreground: 0 0% 98%;
   --border: 0 0% 15%;
   --input: 0 0% 15%;
-  --ring: 345 60% 32%;
+  --ring: 0 0% 98%;
 
   /* Sidebar */
   --sidebar: 0 0% 4%;
   --sidebar-foreground: 0 0% 64%;
-  --sidebar-primary: 345 60% 32%;
-  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-primary: 0 0% 98%;
+  --sidebar-primary-foreground: 0 0% 9%;
   --sidebar-accent: 0 0% 12%;
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 0 0% 15%;
-  --sidebar-ring: 345 60% 32%;
+  --sidebar-ring: 0 0% 98%;
+
+  /* Brand — Figma monochrome system (dark mode) */
+  --brand-primary: 0 0% 98%;
+  --brand-on-primary: 0 0% 9%;
+
+  /* Status Colors (slightly adjusted for dark mode) */
+  --status-draft: 45 93% 65%;
+  --status-active: 140 71% 50%;
+  --status-onhold: 30 60% 60%;
+  --status-completed: 220 30% 50%;
+  --status-archived: 0 0% 50%;
 
   /* Glass */
   --glass-bg: 0 0% 8%;
   --glass-hover: 0 0% 12%;
   --glass-border: 0 0% 15%;
 
-  /* Brand */
-  --brand-gold: 45 93% 58%;
+
+  /* Figma Design System — Dark */
+  --canvas: 0 0% 7%;
+  --inverse-canvas: 0 0% 98%;
+  --surface-soft: 0 0% 12%;
+  --hairline: 0 0% 15%;
+  --hairline-soft: 0 0% 20%;
+  --ink: 0 0% 98%;
+  --inverse-ink: 0 0% 9%;
+  --on-inverse-soft: 0 0% 100%;
+  --accent-magenta: 330 100% 65%;
+  --semantic-success: 140 71% 50%;
+  --overlay-scrim: 0 0% 0%;
+
+  /* Color Blocks */
+  --block-lime: 85 90% 25%;
+  --block-lilac: 270 60% 30%;
+  --block-cream: 40 90% 20%;
+  --block-mint: 160 70% 25%;
+  --block-pink: 330 80% 25%;
+  --block-coral: 15 85% 30%;
+  --block-navy: 220 30% 15%;
 }
 
 /* ── Base layer ─────────────────────────────────────────────────────────── */
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
 
   body {
-    @apply bg-background text-foreground;
+    position: relative;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-family: var(--font-sans);
   }
 }
 
 /* ── Utilities ──────────────────────────────────────────────────────────── */
 @layer utilities {
+  /* ── Brand Colors — Figma monochrome ────────────────────────────────── */
+  .text-brand-primary {
+    color: hsl(var(--brand-primary));
+  }
+
+  .bg-brand-primary {
+    background-color: hsl(var(--brand-primary));
+  }
+
+  .text-brand-on-primary {
+    color: hsl(var(--brand-on-primary));
+  }
+
+  .bg-brand-on-primary {
+    background-color: hsl(var(--brand-on-primary));
+  }
+
+  /* ── Canvas & Surfaces ───────────────────────────────────────────────── */
+  .bg-canvas {
+    background-color: hsl(var(--canvas));
+  }
+
+  .bg-surface-soft {
+    background-color: hsl(var(--surface-soft));
+  }
+
+  .text-ink {
+    color: hsl(var(--ink));
+  }
+
+  .text-inverse-ink {
+    color: hsl(var(--inverse-ink));
+  }
+
+  /* ── Borders & Hairlines ─────────────────────────────────────────────── */
+  .border-hairline {
+    border-color: hsl(var(--hairline));
+  }
+
+  .border-hairline-soft {
+    border-color: hsl(var(--hairline-soft));
+  }
+
+  /* ── Shadows & Elevation ─────────────────────────────────────────────── */
+  .shadow-soft {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-modal {
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  }
+
+  /* ── Glass Card ──────────────────────────────────────────────────────– */
   .glass-card {
     background-color: hsl(var(--glass-bg));
     border: 1px solid hsl(var(--glass-border));
@@ -165,15 +308,348 @@
     border-color: hsl(var(--glass-border));
   }
 
-  .text-brand-gold {
-    color: hsl(var(--brand-gold));
+  /* ── Pill Buttons ────────────────────────────────────────────────────– */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border-radius: var(--radius-pill);
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 480;
+    font-size: 20px;
+    line-height: 1.4;
+    transition: opacity 0.2s;
   }
 
-  .bg-brand-gold {
-    background-color: hsl(var(--brand-gold));
+  .btn-primary:hover {
+    opacity: 0.9;
   }
 
-  /* Animations */
+  .btn-primary:active {
+    opacity: 0.75;
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 18px 10px;
+    border-radius: var(--radius-pill);
+    background-color: hsl(var(--canvas));
+    color: hsl(var(--ink));
+    font-weight: 480;
+    font-size: 20px;
+    line-height: 1.4;
+    border: 1px solid hsl(var(--hairline));
+    transition: background-color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background-color: hsl(var(--surface-soft));
+  }
+
+  .btn-tertiary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    border-radius: var(--radius-pill);
+    color: hsl(var(--ink));
+    font-weight: 480;
+    transition: background-color 0.2s;
+  }
+
+  .btn-tertiary:hover {
+    background-color: hsl(var(--surface-soft));
+  }
+
+  .btn-icon-circular {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: hsl(var(--surface-soft));
+    color: hsl(var(--ink));
+    transition: background-color 0.2s;
+  }
+
+  .btn-icon-circular:hover {
+    background-color: hsl(var(--hairline));
+  }
+
+  .btn-icon-circular-inverse {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background-color: rgba(255, 255, 255, 0.16);
+    color: hsl(var(--inverse-ink));
+    transition: background-color 0.2s;
+  }
+
+  .btn-icon-circular-inverse:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+  }
+
+  .btn-magenta-promo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: var(--radius-pill);
+    background-color: hsl(var(--accent-magenta));
+    color: hsl(var(--primary-foreground));
+    font-weight: 480;
+    font-size: 20px;
+    line-height: 1.4;
+    transition: opacity 0.2s;
+  }
+
+  .btn-magenta-promo:hover {
+    opacity: 0.9;
+  }
+
+  /* ── Color Block Sections ────────────────────────────────────────────– */
+  .color-block-section {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-lime));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-lilac {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-lilac));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-cream {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-cream));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-mint {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-mint));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-pink {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-pink));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-coral {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-coral));
+    color: hsl(var(--ink));
+  }
+
+  .color-block-navy {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xxl);
+    background-color: hsl(var(--block-navy));
+    color: hsl(var(--inverse-ink));
+  }
+
+  /* ── Color Block Background Utilities ────────────────────────────────– */
+  .bg-block-lime { background-color: hsl(var(--block-lime)); }
+  .bg-block-lilac { background-color: hsl(var(--block-lilac)); }
+  .bg-block-cream { background-color: hsl(var(--block-cream)); }
+  .bg-block-mint { background-color: hsl(var(--block-mint)); }
+  .bg-block-pink { background-color: hsl(var(--block-pink)); }
+  .bg-block-coral { background-color: hsl(var(--block-coral)); }
+  .bg-block-navy { background-color: hsl(var(--block-navy)); }
+
+  /* ── Form Inputs ─────────────────────────────────────────────────────– */
+  .input-text {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    background-color: hsl(var(--canvas));
+    color: hsl(var(--ink));
+    font-weight: 330;
+    font-size: 18px;
+    line-height: 1.45;
+    border: 1px solid hsl(var(--hairline));
+    transition: all 0.2s;
+  }
+
+  .input-text:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary));
+  }
+
+  .input-text::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* ── Card Styles ─────────────────────────────────────────────────────– */
+  .card-base {
+    border-radius: var(--radius-lg);
+    background-color: hsl(var(--canvas));
+    border: 1px solid hsl(var(--hairline));
+  }
+
+  .card-lg {
+    border-radius: var(--radius-lg);
+    background-color: hsl(var(--canvas));
+    border: 1px solid hsl(var(--hairline));
+    padding: 24px;
+  }
+
+  .card-md {
+    border-radius: var(--radius-lg);
+    background-color: hsl(var(--canvas));
+    border: 1px solid hsl(var(--hairline));
+    padding: 16px;
+  }
+
+  .pricing-card {
+    border-radius: var(--radius-lg);
+    background-color: hsl(var(--canvas));
+    border: 1px solid hsl(var(--hairline));
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .template-card {
+    border-radius: var(--radius-md);
+    background-color: hsl(var(--surface-soft));
+    padding: 16px;
+  }
+
+  .feature-tile {
+    border-radius: var(--radius-md);
+    background-color: hsl(var(--surface-soft));
+    padding: 24px;
+  }
+
+  /* ── Typography Utilities ────────────────────────────────────────────– */
+  .display-xl {
+    font-weight: 340;
+    font-size: 86px;
+    line-height: 1;
+    letter-spacing: -1.72px;
+  }
+
+  .display-lg {
+    font-weight: 340;
+    font-size: 64px;
+    line-height: 1.1;
+    letter-spacing: -0.96px;
+  }
+
+  .headline {
+    font-weight: 540;
+    font-size: 26px;
+    line-height: 1.35;
+    letter-spacing: -0.26px;
+  }
+
+  .subhead {
+    font-weight: 340;
+    font-size: 26px;
+    line-height: 1.35;
+    letter-spacing: -0.26px;
+  }
+
+  .card-title {
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.45;
+  }
+
+  .body-lg {
+    font-weight: 330;
+    font-size: 20px;
+    line-height: 1.4;
+    letter-spacing: -0.14px;
+  }
+
+  .body {
+    font-weight: 320;
+    font-size: 18px;
+    line-height: 1.45;
+    letter-spacing: -0.26px;
+  }
+
+  .body-sm {
+    font-weight: 330;
+    font-size: 16px;
+    line-height: 1.45;
+    letter-spacing: -0.14px;
+  }
+
+  .link {
+    font-weight: 480;
+    font-size: 20px;
+    line-height: 1.4;
+    letter-spacing: -0.10px;
+  }
+
+  .button-text {
+    font-weight: 480;
+    font-size: 20px;
+    line-height: 1.4;
+    letter-spacing: -0.10px;
+  }
+
+  .eyebrow {
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.3;
+    letter-spacing: 0.54px;
+    text-transform: uppercase;
+  }
+
+  .caption {
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: 0.60px;
+    text-transform: uppercase;
+  }
+
+  /* ── Spacing Utilities ───────────────────────────────────────────────– */
+  .px-section { padding-left: var(--spacing-xxl); padding-right: var(--spacing-xxl); }
+  .py-section { padding-top: var(--spacing-section); padding-bottom: var(--spacing-section); }
+  .gap-section { gap: var(--spacing-section); }
+
+  /* ── Rounded Utilities ───────────────────────────────────────────────– */
+  .rounded-xs { border-radius: var(--radius-xs); }
+  .rounded-sm { border-radius: var(--radius-sm); }
+  .rounded-md { border-radius: var(--radius-md); }
+  .rounded-lg { border-radius: var(--radius-lg); }
+  .rounded-xl { border-radius: var(--radius-xl); }
+  .rounded-pill { border-radius: var(--radius-pill); }
+  .rounded-full { border-radius: var(--radius-full); }
+
+  /* ── Animations ──────────────────────────────────────────────────────– */
   @keyframes fadeIn {
     from {
       opacity: 0;
@@ -219,7 +695,7 @@
     animation: slideInRight 0.4s ease-out forwards;
   }
 
-  /* Custom scrollbar */
+  /* ── Custom Scrollbar ────────────────────────────────────────────────– */
   .custom-scrollbar::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -236,5 +712,39 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground));
+  }
+
+  /* ── Responsive Breakpoints ─────────────────────────────────────────– */
+  @media (max-width: 1280px) {
+    .px-section { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+  }
+
+  @media (max-width: 960px) {
+    .px-section { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+    .display-lg { font-size: 48px; letter-spacing: -0.86px; }
+  }
+
+  @media (max-width: 768px) {
+    .px-section { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+    .color-block-section,
+    .color-block-lilac,
+    .color-block-cream,
+    .color-block-mint,
+    .color-block-pink,
+    .color-block-coral,
+    .color-block-navy {
+      border-radius: 0;
+      padding: var(--spacing-lg);
+    }
+    .display-xl { font-size: 48px; letter-spacing: -1.08px; }
+  }
+
+  @media (max-width: 560px) {
+    .px-section { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+    }
+    .display-xl { font-size: 36px; letter-spacing: -0.81px; }
   }
 }

@@ -9,6 +9,7 @@ import { useQuery, useMutation } from "convex/react"
 import { api } from "@convex/_generated/api"
 import { toast } from "sonner"
 import type { Id } from "@convex/_generated/dataModel"
+import { ColorBlockSection } from "../ColorBlockSection"
 import {
   type PanelProps,
   T,
@@ -193,9 +194,19 @@ export function DesignPanel({ projectId, staffId, isLocked }: PanelProps) {
   // ── No design yet → creation form ───────────────────────────────────────
   if (!design) {
     return (
-      <Card>
-        <SectionHeader eyebrow="Step 2" title="Record the design" />
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="space-y-6">
+        <ColorBlockSection variant="mint">
+          <div className="max-w-[640px]">
+            <h2 className="headline mb-4">Record the design</h2>
+            <p className="body-lg">
+              Capture the style, fabric, colour, and accessories that define this commission.
+            </p>
+          </div>
+        </ColorBlockSection>
+
+        <Card>
+          <SectionHeader title="Design Details" />
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
           {textField("Style", "style", "e.g. Three-piece tuxedo", true)}
           {textField("Fabric", "fabric", "e.g. Italian wool", true)}
           {textField("Colour", "color", "e.g. Midnight navy", true)}
@@ -210,53 +221,18 @@ export function DesignPanel({ projectId, staffId, isLocked }: PanelProps) {
             {saving ? "Saving…" : "Save Design"}
           </PrimaryButton>
         </div>
-      </Card>
+        </Card>
+      </div>
     )
   }
 
   // ── Design exists ───────────────────────────────────────────────────────
   const isApproved = Boolean(design.approvedAt)
 
-  return (
-    <Card>
-      <SectionHeader
-        eyebrow="Step 2"
-        title="Design"
-        action={
-          isApproved ? (
-            <Badge bg={T.green} fg={T.white}>
-              Approved
-            </Badge>
-          ) : editing ? undefined : (
-            <SecondaryButton onClick={startEdit} disabled={disabled}>
-              Edit
-            </SecondaryButton>
-          )
-        }
-      />
-
-      {editing ? (
-        <>
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-            {textField("Style", "style", "e.g. Three-piece tuxedo", true)}
-            {textField("Fabric", "fabric", "e.g. Italian wool", true)}
-            {textField("Colour", "color", "e.g. Midnight navy", true)}
-            {textField("Accessories", "accessories", "e.g. Silk bow tie, pocket square")}
-            <div className="sm:col-span-2">
-              {textField("References", "references", "Comma-separated links or notes")}
-            </div>
-            {notesField}
-          </div>
-          <div className="mt-6 flex justify-end gap-3">
-            <SecondaryButton onClick={() => setEditing(false)} disabled={saving}>
-              Cancel
-            </SecondaryButton>
-            <PrimaryButton onClick={handleUpdate} disabled={disabled || saving}>
-              {saving ? "Saving…" : "Save Changes"}
-            </PrimaryButton>
-          </div>
-        </>
-      ) : (
+  // ── APPROVED: just data fields with mint color block bg ─────────────────
+  if (isApproved) {
+    return (
+      <div className="bg-block-mint rounded-2xl p-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <Field label="Style" value={design.style} />
           <Field label="Fabric" value={design.fabric} />
@@ -283,20 +259,87 @@ export function DesignPanel({ projectId, staffId, isLocked }: PanelProps) {
           <div className="sm:col-span-2">
             <Field label="Notes" value={design.notes || "—"} />
           </div>
-          {isApproved && <Field label="Approved" value={fmtDate(design.approvedAt)} />}
+          <Field label="Approved" value={fmtDate(design.approvedAt)} />
         </div>
-      )}
+      </div>
+    )
+  }
 
-      {!isApproved && !editing && (
-        <div className="mt-8 border-t pt-6" style={{ borderColor: T.stone }}>
-          <p className="mb-4 text-[14px] leading-[22px]" style={{ color: T.muted }}>
-            Approving the design is what unlocks the Quotation step.
-          </p>
-          <PrimaryButton onClick={handleApprove} disabled={disabled || saving}>
-            {saving ? "Saving…" : "Approve Design"}
-          </PrimaryButton>
+  // ── NOT APPROVED: summary with edit + approval action ───────────────────
+  return (
+    <div className="space-y-6">
+      <div className="bg-block-mint rounded-2xl p-8">
+        <div className="flex items-center justify-between max-w-full mb-6">
+          <h2 className="headline">Design</h2>
+          {!editing && (
+            <SecondaryButton onClick={startEdit} disabled={disabled}>
+              Edit
+            </SecondaryButton>
+          )}
         </div>
-      )}
-    </Card>
+
+        {editing ? (
+          <>
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {textField("Style", "style", "e.g. Three-piece tuxedo", true)}
+              {textField("Fabric", "fabric", "e.g. Italian wool", true)}
+              {textField("Colour", "color", "e.g. Midnight navy", true)}
+              {textField("Accessories", "accessories", "e.g. Silk bow tie, pocket square")}
+              <div className="sm:col-span-2">
+                {textField("References", "references", "Comma-separated links or notes")}
+              </div>
+              {notesField}
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <SecondaryButton onClick={() => setEditing(false)} disabled={saving}>
+                Cancel
+              </SecondaryButton>
+              <PrimaryButton onClick={handleUpdate} disabled={disabled || saving}>
+                {saving ? "Saving…" : "Save Changes"}
+              </PrimaryButton>
+            </div>
+          </>
+        ) : (
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <Field label="Style" value={design.style} />
+            <Field label="Fabric" value={design.fabric} />
+            <Field label="Colour" value={design.color} />
+            <Field label="Accessories" value={design.accessories || "—"} />
+            <div className="sm:col-span-2">
+              <Field
+                label="References"
+                value={
+                  design.references.length > 0 ? (
+                    <ul className="flex flex-col gap-1">
+                      {design.references.map((ref: string, i: number) => (
+                        <li key={i} className="truncate text-[15px]">
+                          {ref}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    "—"
+                  )
+                }
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Field label="Notes" value={design.notes || "—"} />
+            </div>
+          </div>
+        )}
+
+        {!editing && (
+          <div className="mt-8 border-t pt-6" style={{ borderColor: T.stone }}>
+            <p className="mb-4 text-[14px] leading-[22px]" style={{ color: T.muted }}>
+              Approving the design is what unlocks the Quotation step.
+            </p>
+            <PrimaryButton onClick={handleApprove} disabled={disabled || saving}>
+              {saving ? "Saving…" : "Approve Design"}
+            </PrimaryButton>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }

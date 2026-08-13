@@ -20,14 +20,29 @@ import {
   Card,
   SectionHeader,
   FieldLabel,
-  Field,
   PrimaryButton,
   SecondaryButton,
   Badge,
   PanelLoading,
   Blocked,
+  Field,
   fmtDate,
 } from "./_kit"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 
 const REQUIRED_FIELDS = [
   { key: "chest", label: "Chest" },
@@ -80,6 +95,9 @@ export function MeasurementPanel({ projectId, staffId, isLocked }: PanelProps) {
   const [form, setForm] = useState<FormState>(EMPTY_FORM)
   const [notes, setNotes] = useState("")
   const [saving, setSaving] = useState(false)
+
+  const [selectedMeasurement, setSelectedMeasurement] = useState<MeasurementRow | null>(null)
+  const [showSheet, setShowSheet] = useState(false)
 
   const disabled = isLocked || !staffId
 
@@ -167,9 +185,9 @@ export function MeasurementPanel({ projectId, staffId, isLocked }: PanelProps) {
               }}
               className="rounded-full border px-4 py-2 text-[13px] font-medium transition-colors"
               style={{
-                background: active ? T.burgundy : T.white,
+                background: active ? "hsl(0 0% 9%)" : T.white,
                 color: active ? T.white : T.body,
-                borderColor: active ? T.burgundy : T.stone,
+                borderColor: active ? "hsl(0 0% 9%)" : T.stone,
               }}
             >
               {p.clientName}
@@ -233,7 +251,7 @@ export function MeasurementPanel({ projectId, staffId, isLocked }: PanelProps) {
               rows={3}
               disabled={disabled}
               placeholder="Posture, allowances, anything the cutter should know…"
-              className="w-full resize-none rounded-xs border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
+              className="w-full resize-none rounded-lg border px-4 py-3 text-[15px] outline-none disabled:opacity-50"
               style={inputStyle}
             />
           </div>
@@ -259,40 +277,95 @@ export function MeasurementPanel({ projectId, staffId, isLocked }: PanelProps) {
           </p>
         </Card>
       ) : (
-        <div className="flex flex-col gap-3">
-          {measurements.map((m: MeasurementRow) => (
-            <Card key={m._id}>
-              <div className="mb-5 flex items-center gap-3">
-                <Badge bg={T.burgundy} fg={T.white}>
-                  {`Version ${m.version}`}
-                </Badge>
-                <span className="text-[13px]" style={{ color: T.muted }}>
-                  {fmtDate(m.takenAt)}
-                </span>
-                {/* No edit or delete control here — ADR-009, append-only. */}
-              </div>
-
-              <div className="grid grid-cols-2 gap-5 sm:grid-cols-4">
-                {REQUIRED_FIELDS.map((f) => (
-                  <Field key={f.key} label={f.label} value={`${m[f.key]} cm`} mono />
-                ))}
-              </div>
-
-              {typeof m.weight === "number" && (
-                <div className="mt-5">
-                  <Field label="Weight" value={`${m.weight} kg`} mono />
-                </div>
-              )}
-
-              {m.notes && (
-                <div className="mt-5 border-t pt-4" style={{ borderColor: T.stone }}>
-                  <Field label="Notes" value={m.notes} />
-                </div>
-              )}
-            </Card>
-          ))}
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-0 border-b border-hairline">
+                <TableHead className="w-[80px] border-0">Version</TableHead>
+                <TableHead className="w-[100px] border-0">Date</TableHead>
+                <TableHead className="w-[70px] text-right border-0">Chest</TableHead>
+                <TableHead className="w-[70px] text-right border-0">Waist</TableHead>
+                <TableHead className="w-[70px] text-right border-0">Hips</TableHead>
+                <TableHead className="w-[70px] text-right border-0">Height</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {measurements.map((m: MeasurementRow) => (
+                <TableRow
+                  key={m._id}
+                  onClick={() => {
+                    setSelectedMeasurement(m)
+                    setShowSheet(true)
+                  }}
+                  className="cursor-pointer hover:bg-muted transition-colors border-0"
+                >
+                  <TableCell className="border-0 py-4 px-6">
+                    <Badge bg="hsl(0 0% 9%)" fg={T.white}>
+                      v{m.version}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-sm border-0 py-4 px-6">{fmtDate(m.takenAt)}</TableCell>
+                  <TableCell className="font-mono text-right text-sm border-0 py-4 px-6">
+                    {m.chest}
+                  </TableCell>
+                  <TableCell className="font-mono text-right text-sm border-0 py-4 px-6">
+                    {m.waist}
+                  </TableCell>
+                  <TableCell className="font-mono text-right text-sm border-0 py-4 px-6">
+                    {m.hips}
+                  </TableCell>
+                  <TableCell className="font-mono text-right text-sm border-0 py-4 px-6">
+                    {m.height}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
+
+      {/* Measurement Details Drawer */}
+      <Drawer open={showSheet} onOpenChange={setShowSheet} swipeDirection="right">
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>
+              {selectedMeasurement ? `Measurement v${selectedMeasurement.version}` : "Measurement"}
+            </DrawerTitle>
+            <DrawerDescription>
+              {selectedMeasurement ? fmtDate(selectedMeasurement.takenAt) : ""}
+            </DrawerDescription>
+          </DrawerHeader>
+
+          {selectedMeasurement && (
+            <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {REQUIRED_FIELDS.map((f) => (
+                    <Field
+                      key={f.key}
+                      label={`${f.label} (cm)`}
+                      value={String(selectedMeasurement[f.key])}
+                      mono
+                    />
+                  ))}
+                  <Field
+                    label="Weight (kg)"
+                    value={selectedMeasurement.weight != null ? String(selectedMeasurement.weight) : "—"}
+                    mono
+                  />
+                </div>
+
+                {selectedMeasurement.notes && (
+                  <>
+                    <div className="h-px bg-border" />
+                    <Field label="Notes" value={selectedMeasurement.notes} />
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </DrawerContent>
+      </Drawer>
     </div>
   )
 }

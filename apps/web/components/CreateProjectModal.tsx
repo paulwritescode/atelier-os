@@ -31,14 +31,6 @@ const PROJECT_TYPES: { value: ProjectType; label: string }[] = [
   { value: "Alteration", label: "Alteration" },
 ]
 
-const CLIENT_TYPES: { value: ClientType; label: string }[] = [
-  { value: "Individual", label: "Individual" },
-  { value: "Family", label: "Family" },
-  { value: "Corporate", label: "Corporate" },
-  { value: "WeddingHost", label: "Wedding Host" },
-  { value: "EventOrganizer", label: "Event Organizer" },
-]
-
 // Sensible client type for a given commission type
 const DEFAULT_CLIENT_TYPE: Record<ProjectType, ClientType> = {
   Wedding: "WeddingHost",
@@ -59,17 +51,15 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
   const clients = useQuery(api.clients.list)
   const createClient = useMutation(api.clients.create)
 
-  const [mode, setMode] = useState<"existing" | "new">("existing")
+  const [mode, setMode] = useState<"existing" | "new">("new")
   const [selectedClientId, setSelectedClientId] = useState<string>("")
   const [newClientName, setNewClientName] = useState("")
-  const [newClientType, setNewClientType] = useState<ClientType>("Individual")
-  const [newClientEmail, setNewClientEmail] = useState("")
-  const [newClientPhone, setNewClientPhone] = useState("")
 
   const [projectType, setProjectType] = useState<ProjectType>("Individual")
+  const [isOtherType, setIsOtherType] = useState(false)
+  const [customTitle, setCustomTitle] = useState("")
   const [title, setTitle] = useState("")
   const [titleEdited, setTitleEdited] = useState(false)
-  const [notes, setNotes] = useState("")
 
   const [error, setError] = useState("")
   const [saving, setSaving] = useState(false)
@@ -83,25 +73,26 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     return clients?.find((c) => c._id === selectedClientId)?.name ?? ""
   }, [effectiveMode, newClientName, clients, selectedClientId])
 
-  // Title auto-fills as "{Type} - {Client}" per Appendix §Naming Conventions
+  // Title auto-fills as "{Type} - {Client}" per naming conventions
   const derivedTitle = useMemo(() => {
+    if (isOtherType && customTitle.trim()) {
+      return activeClientName ? `${customTitle.trim()} - ${activeClientName}` : customTitle.trim()
+    }
     const label = PROJECT_TYPES.find((t) => t.value === projectType)?.label ?? projectType
     return activeClientName ? `${label} - ${activeClientName}` : ""
-  }, [projectType, activeClientName])
+  }, [projectType, activeClientName, isOtherType, customTitle])
 
   const effectiveTitle = titleEdited ? title : derivedTitle
 
   const reset = () => {
-    setMode("existing")
+    setMode("new")
     setSelectedClientId("")
     setNewClientName("")
-    setNewClientType("Individual")
-    setNewClientEmail("")
-    setNewClientPhone("")
     setProjectType("Individual")
+    setIsOtherType(false)
+    setCustomTitle("")
     setTitle("")
     setTitleEdited(false)
-    setNotes("")
     setError("")
     setSaving(false)
   }
@@ -111,9 +102,14 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
     onClose()
   }
 
-  const handleTypeChange = (value: ProjectType) => {
-    setProjectType(value)
-    setNewClientType(DEFAULT_CLIENT_TYPE[value])
+  const handleTypeChange = (value: string) => {
+    if (value === "Other") {
+      setIsOtherType(true)
+      setProjectType("Individual") // Default DB value for custom/other
+    } else {
+      setIsOtherType(false)
+      setProjectType(value as ProjectType)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -137,9 +133,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         }
         clientId = await createClient({
           name: newClientName.trim(),
-          email: newClientEmail.trim() || undefined,
-          phone: newClientPhone.trim() || undefined,
-          type: newClientType,
+          type: DEFAULT_CLIENT_TYPE[projectType],
           createdBy: user.id as Id<"staff">,
         })
       } else {
@@ -155,7 +149,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
         primaryClientId: clientId,
         type: projectType,
         title: effectiveTitle || `${projectType} - ${activeClientName}`,
-        notes: notes.trim() || undefined,
       })
 
       reset()
@@ -208,31 +201,33 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </div>
           )}
 
-          {/* Client — existing vs new */}
-          <div>
-            <div className="mb-2 flex items-center justify-between">
-              <label className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                Client
-              </label>
-              {hasClients && (
-                <div className="flex gap-1">
-                  {(["existing", "new"] as const).map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setMode(m)}
-                      className={`rounded-full px-3 py-1 text-[12px] font-medium transition-colors ${
-                        effectiveMode === m
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {m === "existing" ? "Existing" : "New"}
-                    </button>
-                  ))}
-                </div>
-              )}
+          {/* Segmented Tabs — New / Existing */}
+          {hasClients && (
+            <div className="flex justify-center">
+              <div className="inline-flex gap-2 rounded-full bg-muted p-1">
+                {(["new", "existing"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMode(m)}
+                    className={`h-[44px] rounded-full px-6 text-[14px] font-medium transition-colors ${
+                      effectiveMode === m
+                        ? "bg-block-lilac text-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {m === "new" ? "New Client" : "Existing Client"}
+                  </button>
+                ))}
+              </div>
             </div>
+          )}
+
+          {/* Client */}
+          <div>
+            <label className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
+              Client
+            </label>
 
             {effectiveMode === "existing" ? (
               <select
@@ -263,33 +258,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                   className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
                   required
                 />
-                <select
-                  value={newClientType}
-                  onChange={(e) => setNewClientType(e.target.value as ClientType)}
-                  className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
-                >
-                  {CLIENT_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="email"
-                    value={newClientEmail}
-                    onChange={(e) => setNewClientEmail(e.target.value)}
-                    placeholder="Email (optional)"
-                    className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
-                  />
-                  <input
-                    type="tel"
-                    value={newClientPhone}
-                    onChange={(e) => setNewClientPhone(e.target.value)}
-                    placeholder="Phone (optional)"
-                    className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
-                  />
-                </div>
               </div>
             )}
           </div>
@@ -304,8 +272,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             </label>
             <select
               id="projectType"
-              value={projectType}
-              onChange={(e) => handleTypeChange(e.target.value as ProjectType)}
+              value={isOtherType ? "Other" : projectType}
+              onChange={(e) => handleTypeChange(e.target.value)}
               className="h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
               required
             >
@@ -314,7 +282,18 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
                   {t.label}
                 </option>
               ))}
+              <option value="Other">Other</option>
             </select>
+
+            {isOtherType && (
+              <input
+                type="text"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Describe the commission type..."
+                className="mt-3 h-[44px] w-full rounded-xl border border-border bg-background px-4 text-[14px] text-foreground outline-none focus:border-ring"
+              />
+            )}
           </div>
 
           {/* Title */}
@@ -340,24 +319,6 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({
             <p className="mt-1.5 text-[12px] text-muted-foreground">
               Auto-filled from type and client — edit if needed.
             </p>
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label
-              htmlFor="notes"
-              className="mb-2 block text-[12px] font-semibold uppercase tracking-[0.08em] text-muted-foreground"
-            >
-              Initial Notes <span className="text-muted-foreground">(optional)</span>
-            </label>
-            <textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Requirements, context, anything worth recording..."
-              rows={3}
-              className="w-full resize-none rounded-xl border border-border bg-background px-4 py-3 text-[14px] text-foreground outline-none focus:border-ring"
-            />
           </div>
 
           {/* Actions */}

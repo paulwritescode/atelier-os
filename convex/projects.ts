@@ -79,6 +79,17 @@ export const update = mutation({
     id: v.id("projects"),
     title: v.optional(v.string()),
     notes: v.optional(v.string()),
+    type: v.optional(
+      v.union(
+        v.literal("Wedding"),
+        v.literal("Corporate"),
+        v.literal("Individual"),
+        v.literal("ClosetRevamp"),
+        v.literal("GalaOutfit"),
+        v.literal("Photoshoot"),
+        v.literal("Alteration")
+      )
+    ),
     status: v.optional(
       v.union(
         v.literal("Draft"),
@@ -98,6 +109,7 @@ export const update = mutation({
     const updates: Record<string, unknown> = { updatedAt: now };
     if (args.title !== undefined) updates.title = args.title;
     if (args.notes !== undefined) updates.notes = args.notes;
+    if (args.type !== undefined) updates.type = args.type;
     if (args.status !== undefined) updates.status = args.status;
 
     await ctx.db.patch(args.id, updates);
@@ -157,6 +169,106 @@ export const softDelete = mutation({
 });
 
 // ── Sharing ───────────────────────────────────────────────────────────────
+
+// ── Lifecycle Management ──────────────────────────────────────────────────
+
+const LIFECYCLE_STAGES = [
+  "Lead",
+  "Consultation",
+  "Design",
+  "Quotation",
+  "Deposit",
+  "Measurements",
+  "Production",
+  "Fitting",
+  "Final Payment",
+  "Delivery",
+  "Completed",
+] as const;
+
+/**
+ * Mark the current lifecycle stage as complete and advance to the next one.
+ * Persists the new stage on the project record and logs a timeline event.
+ */
+export const advanceLifecycleStage = mutation({
+  args: {
+    id: v.id("projects"),
+    completedStage: v.string(), // The stage being marked as done
+    updatedBy: v.id("staff"),
+  },
+  handler: async (ctx, { id, completedStage, updatedBy }) => {
+    const project = await ctx.db.get(id);
+    if (!project) throw new Error("Project not found");
+
+    const currentIndex = LIFECYCLE_STAGES.indexOf(
+      completedStage as (typeof LIFECYCLE_STAGES)[number]
+    );
+    if (currentIndex === -1) throw new Error("Invalid lifecycle stage");
+
+    const nextIndex = Math.min(currentIndex + 1, LIFECYCLE_STAGES.length - 1);
+    const nextStage = LIFECYCLE_STAGES[nextIndex];
+    const now = Date.now();
+
+    await ctx.db.patch(id, {
+      lifecycleStage: nextStage,
+      updatedAt: now,
+      // Auto-complete the project when we reach "Completed"
+      ...(nextStage === "Completed" ? { status: "Completed" } : {}),
+    });
+
+    await ctx.db.insert("timelineEvents", {
+      projectId: id,
+      type: "Lifecycle Advanced",
+      summary: `"${completedStage}" marked as complete. Now at "${nextStage}".`,
+      metadata: { from: completedStage, to: nextStage },
+      createdBy: updatedBy,
+      createdAt: now,
+    });
+
+    return nextStage;
+  },
+});
+
+/**
+ * Set the lifecycle stage to a specific value (e.g. going back).
+ */
+export const setLifecycleStage = mutation({
+  args: {
+    id: v.id("projects"),
+    stage: v.union(
+      v.literal("Lead"),
+      v.literal("Consultation"),
+      v.literal("Design"),
+      v.literal("Quotation"),
+      v.literal("Deposit"),
+      v.literal("Measurements"),
+      v.literal("Production"),
+      v.literal("Fitting"),
+      v.literal("Final Payment"),
+      v.literal("Delivery"),
+      v.literal("Completed")
+    ),
+    updatedBy: v.id("staff"),
+  },
+  handler: async (ctx, { id, stage, updatedBy }) => {
+    const project = await ctx.db.get(id);
+    if (!project) throw new Error("Project not found");
+
+    const now = Date.now();
+    await ctx.db.patch(id, { lifecycleStage: stage, updatedAt: now });
+
+    await ctx.db.insert("timelineEvents", {
+      projectId: id,
+      type: "Lifecycle Set",
+      summary: `Lifecycle stage manually set to "${stage}".`,
+      metadata: { stage },
+      createdBy: updatedBy,
+      createdAt: now,
+    });
+
+    return stage;
+  },
+});
 
 export const setShareSettings = mutation({
   args: {
