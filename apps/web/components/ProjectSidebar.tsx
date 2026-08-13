@@ -1,7 +1,9 @@
 "use client"
 
-import React from "react"
+import React, { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useQuery } from "convex/react"
+import { api } from "@convex/_generated/api"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowLeft01Icon,
@@ -14,6 +16,7 @@ import {
   FileText,
   Archive02Icon,
   Cancel01Icon,
+  ArrowDown01Icon,
 } from "@hugeicons/core-free-icons"
 import { cn } from "@/lib/utils"
 import type { ProjectStatus } from "@/lib/types"
@@ -73,6 +76,13 @@ export function ProjectSidebar({
   onRemove,
 }: ProjectSidebarProps) {
   const router = useRouter()
+  const projects = useQuery(api.projects.list)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const handleProjectSelect = (slug: string) => {
+    setDropdownOpen(false)
+    router.push(`/projects/${slug}`)
+  }
 
   return (
     <div
@@ -81,39 +91,89 @@ export function ProjectSidebar({
         collapsed ? "w-16" : "w-64"
       )}
     >
-      {/* ── Project Header ──────────────────────────────────────────────── */}
+      {/* ── Project Selector ────────────────────────────────────────────── */}
       <div
         className={cn(
-          "border-b border-border transition-all duration-300",
+          "border-b border-border transition-all duration-300 relative",
           collapsed ? "p-2" : "p-3"
         )}
       >
-        <div
+        <button
+          onClick={() => !collapsed && setDropdownOpen(!dropdownOpen)}
           className={cn(
-            "flex items-center transition-all duration-300",
-            collapsed ? "justify-center" : "gap-3"
+            "flex w-full items-center transition-all duration-300 rounded-lg",
+            collapsed ? "justify-center" : "gap-3 hover:bg-muted px-2 py-1.5",
+            !collapsed && "cursor-pointer"
           )}
+          title={collapsed ? projectTitle : undefined}
         >
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg">
             <HugeiconsIcon icon={Briefcase} className="size-4 text-foreground" />
           </div>
           {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <h2 className="truncate text-sm font-semibold text-foreground">
-                {projectTitle}
-              </h2>
-              <p className="truncate text-[11px] text-muted-foreground">
-                {projectType}
-              </p>
-            </div>
+            <>
+              <div className="min-w-0 flex-1 text-left">
+                <h2 className="truncate text-sm font-semibold text-foreground">
+                  {projectTitle}
+                </h2>
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {projectType}
+                </p>
+              </div>
+              <HugeiconsIcon
+                icon={ArrowDown01Icon}
+                className={cn(
+                  "size-3.5 shrink-0 text-muted-foreground transition-transform",
+                  dropdownOpen && "rotate-180"
+                )}
+              />
+            </>
           )}
-        </div>
+        </button>
+
+        {/* Dropdown list of projects */}
+        {dropdownOpen && !collapsed && (
+          <>
+            {/* Backdrop to close dropdown */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setDropdownOpen(false)}
+            />
+            <div className="absolute left-2 right-2 top-full z-50 mt-1 max-h-[300px] overflow-y-auto rounded-lg border border-border bg-popover shadow-lg">
+              {projects === undefined ? (
+                <div className="px-3 py-4 text-center text-[13px] text-muted-foreground">
+                  Loading…
+                </div>
+              ) : projects.length === 0 ? (
+                <div className="px-3 py-4 text-center text-[13px] text-muted-foreground">
+                  No projects
+                </div>
+              ) : (
+                projects.map((p) => (
+                  <button
+                    key={p._id}
+                    onClick={() => handleProjectSelect(p.slug)}
+                    className={cn(
+                      "flex w-full items-center gap-3 px-3 py-2.5 text-left text-[13px] transition-colors hover:bg-muted",
+                      p.title === projectTitle && "bg-muted font-medium"
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-foreground">{p.title}</p>
+                      <p className="truncate text-[11px] text-muted-foreground">{p.type}</p>
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Back button ─────────────────────────────────────────────────── */}
       <div className="border-b border-border">
         <button
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/projects")}
           className={cn(
             "flex w-full items-center rounded-none py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
             collapsed ? "justify-center px-2" : "gap-2 px-4"
