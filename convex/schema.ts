@@ -311,6 +311,18 @@ export default defineSchema({
     createdBy: v.id("staff"),
   }).index("by_project", ["projectId"]),
 
+  // ── Story Comments (from clients on the share page) ────────────────────
+  storyComments: defineTable({
+    storyId: v.id("storyUpdates"),
+    projectId: v.id("projects"),
+    authorName: v.string(),       // Client name (not authenticated, self-reported)
+    authorType: v.union(v.literal("client"), v.literal("staff")),
+    text: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_story", ["storyId"])
+    .index("by_project", ["projectId"]),
+
   // ── Documents ──────────────────────────────────────────────────────────
   documents: defineTable({
     projectId: v.id("projects"),

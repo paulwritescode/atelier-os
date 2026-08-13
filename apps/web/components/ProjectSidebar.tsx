@@ -48,7 +48,7 @@ const NAV_ITEMS: SidebarNavItem[] = [
   { id: "production", label: "Production", icon: Scissors },
   { id: "appointments", label: "Appointments", icon: Calendar },
   { id: "timeline", label: "Timeline", icon: Clock },
-  { id: "stories", label: "Stories", icon: FileText },
+  { id: "stories", label: "Updates", icon: FileText },
   { id: "documents", label: "Documents", icon: FileText },
 ]
 

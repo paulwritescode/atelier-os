@@ -67,3 +67,75 @@ export const expire = mutation({
     });
   },
 });
+
+// ── Comments ──────────────────────────────────────────────────────────────
+
+/** List comments for a specific story update */
+export const listComments = query({
+  args: { storyId: v.id("storyUpdates") },
+  handler: async (ctx, { storyId }) => {
+    return await ctx.db
+      .query("storyComments")
+      .withIndex("by_story", (q) => q.eq("storyId", storyId))
+      .order("asc")
+      .collect();
+  },
+});
+
+/** Count comments per story for a project (for showing badges) */
+export const commentCountsByProject = query({
+  args: { projectId: v.id("projects") },
+  handler: async (ctx, { projectId }) => {
+    const comments = await ctx.db
+      .query("storyComments")
+      .withIndex("by_project", (q) => q.eq("projectId", projectId))
+      .collect();
+
+    const counts: Record<string, number> = {};
+    for (const c of comments) {
+      counts[c.storyId] = (counts[c.storyId] || 0) + 1;
+    }
+    return counts;
+  },
+});
+
+/** Add a comment from a client (on the share page) */
+export const addClientComment = mutation({
+  args: {
+    storyId: v.id("storyUpdates"),
+    projectId: v.id("projects"),
+    authorName: v.string(),
+    text: v.string(),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.insert("storyComments", {
+      storyId: args.storyId,
+      projectId: args.projectId,
+      authorName: args.authorName,
+      authorType: "client",
+      text: args.text,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+/** Add a comment from staff (reply from the project panel) */
+export const addStaffComment = mutation({
+  args: {
+    storyId: v.id("storyUpdates"),
+    projectId: v.id("projects"),
+    staffId: v.id("staff"),
+    text: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const staff = await ctx.db.get(args.staffId);
+    return await ctx.db.insert("storyComments", {
+      storyId: args.storyId,
+      projectId: args.projectId,
+      authorName: staff?.name ?? "Staff",
+      authorType: "staff",
+      text: args.text,
+      createdAt: Date.now(),
+    });
+  },
+});
