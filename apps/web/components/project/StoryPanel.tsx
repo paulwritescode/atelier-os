@@ -144,18 +144,12 @@ export function StoryPanel({ projectId, staffId, isLocked }: PanelProps) {
             </div>
             <div>
               <FieldLabel>Media (images / videos)</FieldLabel>
-              <input
-                type="text"
-                value={mediaUrls}
-                onChange={(e) => setMediaUrls(e.target.value)}
+              <MediaUploader
+                projectId={projectId}
                 disabled={disabled}
-                placeholder="Comma-separated image or video URLs"
-                className="h-[44px] w-full rounded-full border px-4 text-[15px] outline-none disabled:opacity-50"
-                style={inputStyle}
+                onFilesUploaded={(urls) => setMediaUrls(urls.join(","))}
+                currentUrls={mediaUrls ? mediaUrls.split(",").filter(Boolean) : []}
               />
-              <p className="mt-1.5 text-[12px] text-muted-foreground">
-                Paste direct URLs to images or videos. Clients will see these as stories.
-              </p>
             </div>
             <div className="flex justify-end gap-3">
               <SecondaryButton onClick={reset} disabled={saving}>
@@ -400,6 +394,213 @@ function UpdateCard({
               </button>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
+/* ── Media Uploader — device file picker with R2 upload ────────────────── */
+
+interface MediaUploaderProps {
+  projectId: Id<"projects">
+  disabled: boolean
+  onFilesUploaded: (urls: string[]) => void
+  currentUrls: string[]
+}
+
+interface UploadingFile {
+  id: string
+  name: string
+  type: string
+  progress: number // 0-100
+  status: "uploading" | "done" | "error"
+  url?: string
+  preview?: string
+}
+
+function MediaUploader({ projectId, disabled, onFilesUploaded, currentUrls }: MediaUploaderProps) {
+  const [files, setFiles] = useState<UploadingFile[]>(
+    currentUrls.map((url, i) => ({
+      id: `existing-${i}`,
+      name: url.split("/").pop() ?? "file",
+      type: url.match(/\.(mp4|webm|mov)/i) ? "video/mp4" : "image/jpeg",
+      progress: 100,
+      status: "done" as const,
+      url,
+    }))
+  )
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files ?? [])
+    if (selectedFiles.length === 0) return
+
+    const newFiles: UploadingFile[] = selectedFiles.map((f) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name: f.name,
+      type: f.type,
+      progress: 0,
+      status: "uploading" as const,
+      preview: f.type.startsWith("image/") ? URL.createObjectURL(f) : undefined,
+    }))
+
+    setFiles((prev) => [...prev, ...newFiles])
+
+    // Upload each file
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i]
+      const uploadFile = newFiles[i]
+
+      try {
+        // 1. Get presigned URL from our API
+        const res = await fetch("/api/v1/media/upload", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            filename: file.name,
+            contentType: file.type,
+            projectId,
+          }),
+        })
+
+        if (!res.ok) {
+          throw new Error("Failed to get upload URL")
+        }
+
+        const { uploadUrl, key } = await res.json()
+
+        // 2. Upload directly to R2
+        const uploadRes = await fetch(uploadUrl, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type },
+        })
+
+        if (!uploadRes.ok) {
+          throw new Error("Upload failed")
+        }
+
+        // 3. Get the download URL
+        const dlRes = await fetch(`/api/v1/media/${key}`)
+        const { downloadUrl } = await dlRes.json()
+
+        // 4. Update state
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadFile.id
+              ? { ...f, progress: 100, status: "done" as const, url: downloadUrl }
+              : f
+          )
+        )
+      } catch {
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.id === uploadFile.id
+              ? { ...f, status: "error" as const }
+              : f
+          )
+        )
+      }
+    }
+
+    // Reset input
+    e.target.value = ""
+  }
+
+  // Sync uploaded URLs back to parent whenever files change
+  React.useEffect(() => {
+    const uploadedUrls = files
+      .filter((f) => f.status === "done" && f.url)
+      .map((f) => f.url!)
+    onFilesUploaded(uploadedUrls)
+  }, [files]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const removeFile = (id: string) => {
+    setFiles((prev) => prev.filter((f) => f.id !== id))
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {/* File picker button */}
+      <label
+        className={cn(
+          "flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-border p-6 transition-colors hover:border-primary/50 hover:bg-muted/30",
+          disabled && "cursor-not-allowed opacity-50"
+        )}
+      >
+        <div className="flex size-10 items-center justify-center rounded-full bg-muted">
+          <HugeiconsIcon icon={Image01Icon} className="size-5 text-muted-foreground" />
+        </div>
+        <div className="text-center">
+          <p className="text-[13px] font-medium text-foreground">
+            Tap to upload photos or videos
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            JPG, PNG, WebP, MP4 • Max 30s for videos
+          </p>
+        </div>
+        <input
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp,video/mp4"
+          onChange={handleFileSelect}
+          disabled={disabled}
+          className="hidden"
+        />
+      </label>
+
+      {/* Uploaded files preview */}
+      {files.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {files.map((f) => (
+            <div
+              key={f.id}
+              className="relative size-20 rounded-lg overflow-hidden border border-border/60 bg-muted"
+            >
+              {/* Preview */}
+              {f.preview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={f.preview} alt="" className="size-full object-cover" />
+              ) : f.url && !f.type.startsWith("video/") ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={f.url} alt="" className="size-full object-cover" />
+              ) : (
+                <div className="size-full flex items-center justify-center">
+                  <span className="text-[9px] text-muted-foreground uppercase">
+                    {f.type.startsWith("video/") ? "VID" : "FILE"}
+                  </span>
+                </div>
+              )}
+
+              {/* Upload progress overlay */}
+              {f.status === "uploading" && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                  <div className="size-6 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                </div>
+              )}
+
+              {/* Error overlay */}
+              {f.status === "error" && (
+                <div className="absolute inset-0 flex items-center justify-center bg-red-500/20">
+                  <span className="text-[10px] font-medium text-red-600">Error</span>
+                </div>
+              )}
+
+              {/* Remove button */}
+              {f.status === "done" && (
+                <button
+                  type="button"
+                  onClick={() => removeFile(f.id)}
+                  className="absolute top-1 right-1 flex size-4 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                >
+                  <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                    <path d="M1 1L7 7M7 1L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          ))}
         </div>
       )}
     </div>
