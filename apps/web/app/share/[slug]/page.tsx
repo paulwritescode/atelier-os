@@ -372,37 +372,63 @@ function StoriesRow({ stories }: { stories: Story[] }) {
     <>
       {/* Story circles */}
       <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-2">
-        {stories.map((story, i) => (
-          <button
-            key={story._id}
-            onClick={() => setActiveStory(story)}
-            className="flex flex-col items-center gap-1.5 shrink-0"
-          >
-            <div className="relative">
-              <div className="size-14 sm:size-16 rounded-full bg-gradient-to-br from-[hsl(330_80%_60%)] via-[hsl(45_93%_58%)] to-[hsl(270_60%_60%)] p-[2.5px]">
-                <div className="size-full rounded-full bg-background p-[2px]">
-                  <div className="size-full rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                    {story.mediaUrls.length > 0 ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={story.mediaUrls[0]}
-                        alt=""
-                        className="size-full object-cover rounded-full"
-                      />
-                    ) : (
-                      <span className="text-[11px] font-medium text-muted-foreground">
-                        {i + 1}
-                      </span>
-                    )}
+        {stories.map((story, i) => {
+          const firstMedia = story.mediaUrls.length > 0 ? story.mediaUrls[0] : null
+          const isVideo = firstMedia?.match(/\.(mp4|webm|mov)/i)
+
+          return (
+            <button
+              key={story._id}
+              onClick={() => setActiveStory(story)}
+              className="flex flex-col items-center gap-1.5 shrink-0"
+            >
+              <div className="relative">
+                <div className="size-14 sm:size-16 rounded-full bg-gradient-to-br from-[hsl(330_80%_60%)] via-[hsl(45_93%_58%)] to-[hsl(270_60%_60%)] p-[2.5px]">
+                  <div className="size-full rounded-full bg-background p-[2px]">
+                    <div className="size-full rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                      {firstMedia && isVideo ? (
+                        <video
+                          src={firstMedia}
+                          className="size-full object-cover rounded-full"
+                          muted
+                          preload="metadata"
+                        />
+                      ) : firstMedia ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={firstMedia}
+                          alt=""
+                          className="size-full object-cover rounded-full"
+                        />
+                      ) : story.text ? (
+                        <span className="text-[11px] font-semibold text-foreground/70 px-1 text-center leading-tight line-clamp-2">
+                          {story.text.slice(0, 20)}
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-medium text-muted-foreground">
+                          {i + 1}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
+                {/* Play icon overlay for video stories */}
+                {isVideo && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="size-5 rounded-full bg-black/50 flex items-center justify-center">
+                      <svg width="8" height="10" viewBox="0 0 8 10" fill="white">
+                        <path d="M0 0L8 5L0 10V0Z" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-            <span className="text-[10px] text-muted-foreground">
-              {timeAgo(story.publishedAt)}
-            </span>
-          </button>
-        ))}
+              <span className="text-[10px] text-muted-foreground max-w-[56px] sm:max-w-[64px] truncate text-center">
+                {timeAgo(story.publishedAt)}
+              </span>
+            </button>
+          )
+        })}
       </div>
 
       {/* Story viewer overlay */}
